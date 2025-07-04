@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Gagan Kumar Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#00d4ff',
+                        secondary: '#7c3aed',
+                        accent: '#f59e0b',
+                        dark: '#0a0a0a',
+                        'dark-light': '#111111',
+                        'dark-bg': '#0f0f0f',
+                        'dark-card': '#1a1a1a',
+                        'dark-border': '#333333',
+                        'neon-blue': '#00f5ff',
+                        'neon-purple': '#bf40bf',
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Range slider styling */
+        input[type="range"] {
+            appearance: none;
+            height: 8px;
+            background: #333333;
+            border-radius: 5px;
+            outline: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #00d4ff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #00d4ff;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+        
+        input[type="range"]::-webkit-slider-track {
+            background: #333333;
+            height: 8px;
+            border-radius: 5px;
+        }
+        
+        input[type="range"]::-moz-range-track {
+            background: #333333;
+            height: 8px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body class="font-inter bg-dark-bg text-white min-h-screen">
+    <!-- Admin Navigation -->
+    <nav class="bg-dark-card border-b border-dark-border shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                            Admin Panel
+                        </h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="logout-btn" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-300">
+                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-dark-card p-8 rounded-xl shadow-2xl w-full max-w-md mx-4">
+            <h2 class="text-2xl font-bold text-center mb-6 text-primary">Admin Login</h2>
+            <form id="login-form">
+                <div class="mb-4">
+                    <label for="username" class="block text-sm font-medium text-gray-300 mb-2">Username</label>
+                    <input type="text" id="username" name="username" required
+                           class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white">
+                </div>
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                    <input type="password" id="password" name="password" required
+                           class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-primary to-secondary text-white py-2 rounded-lg hover:opacity-90 transition-opacity duration-300">
+                    Login
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="admin-content" class="hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Dashboard Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-dark-card p-6 rounded-xl border border-dark-border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400">Total Projects</p>
+                            <p class="text-2xl font-bold text-primary" id="total-projects">0</p>
+                        </div>
+                        <i class="fas fa-project-diagram text-3xl text-primary"></i>
+                    </div>
+                </div>
+                <div class="bg-dark-card p-6 rounded-xl border border-dark-border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400">Total Skills</p>
+                            <p class="text-2xl font-bold text-secondary" id="total-skills">0</p>
+                        </div>
+                        <i class="fas fa-code text-3xl text-secondary"></i>
+                    </div>
+                </div>
+                <div class="bg-dark-card p-6 rounded-xl border border-dark-border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400">Messages</p>
+                            <p class="text-2xl font-bold text-accent" id="total-messages">0</p>
+                        </div>
+                        <i class="fas fa-envelope text-3xl text-accent"></i>
+                    </div>
+                </div>
+                <div class="bg-dark-card p-6 rounded-xl border border-dark-border">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-400">Profile Views</p>
+                            <p class="text-2xl font-bold text-green-400" id="profile-views">0</p>
+                        </div>
+                        <i class="fas fa-eye text-3xl text-green-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs Navigation -->
+            <div class="bg-dark-card rounded-xl p-4 mb-6">
+                <div class="flex space-x-4 overflow-x-auto">
+                    <button class="tab-btn active px-4 py-2 rounded-lg bg-primary text-white transition-colors duration-300" data-tab="profile">
+                        <i class="fas fa-user mr-2"></i>Profile
+                    </button>
+                    <button class="tab-btn px-4 py-2 rounded-lg bg-dark-bg text-gray-300 hover:bg-primary hover:text-white transition-colors duration-300" data-tab="skills">
+                        <i class="fas fa-code mr-2"></i>Skills
+                    </button>
+                    <button class="tab-btn px-4 py-2 rounded-lg bg-dark-bg text-gray-300 hover:bg-primary hover:text-white transition-colors duration-300" data-tab="projects">
+                        <i class="fas fa-project-diagram mr-2"></i>Projects
+                    </button>
+                    <button class="tab-btn px-4 py-2 rounded-lg bg-dark-bg text-gray-300 hover:bg-primary hover:text-white transition-colors duration-300" data-tab="contact">
+                        <i class="fas fa-envelope mr-2"></i>Contact Info
+                    </button>
+                    <button class="tab-btn px-4 py-2 rounded-lg bg-dark-bg text-gray-300 hover:bg-primary hover:text-white transition-colors duration-300" data-tab="messages">
+                        <i class="fas fa-comments mr-2"></i>Messages
+                    </button>
+                </div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="profile-tab" class="tab-content">
+                <div class="bg-dark-card rounded-xl p-6 border border-dark-border">
+                    <h3 class="text-xl font-bold mb-4 text-primary">Profile Information</h3>
+                    <form id="profile-form" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Name</label>
+                                <input type="text" id="profile-name" value="Gagan Kumar" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Title</label>
+                                <input type="text" id="profile-title" value="Python | Full Stack Developer" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Description</label>
+                            <textarea id="profile-description" rows="4" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white">Crafting digital experiences with cutting-edge technologies. Specialized in building scalable web applications that push the boundaries of innovation.</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Profile Image</label>
+                            <div class="flex items-center space-x-4">
+                                <input type="file" id="profile-image" accept="image/*" class="hidden">
+                                <button type="button" onclick="document.getElementById('profile-image').click()" class="bg-secondary text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity duration-300">
+                                    <i class="fas fa-upload mr-2"></i>Upload Image
+                                </button>
+                                <span id="image-name" class="text-gray-400">No file selected</span>
+                            </div>
+                        </div>
+                        <button type="submit" class="bg-primary text-white px-6 py-2 rounded-lg hover:opacity-90 transition-opacity duration-300">
+                            <i class="fas fa-save mr-2"></i>Update Profile
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Skills Tab -->
+            <div id="skills-tab" class="tab-content hidden">
+                <div class="bg-dark-card rounded-xl p-6 border border-dark-border">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-primary">Skills Management</h3>
+                        <button id="add-skill-btn" class="bg-primary text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity duration-300">
+                            <i class="fas fa-plus mr-2"></i>Add Skill
+                        </button>
+                    </div>
+                    <div id="skills-list" class="space-y-4">
+                        <!-- Skills will be dynamically loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Tab -->
+            <div id="projects-tab" class="tab-content hidden">
+                <div class="bg-dark-card rounded-xl p-6 border border-dark-border">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-primary">Projects Management</h3>
+                        <button id="add-project-btn" class="bg-primary text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity duration-300">
+                            <i class="fas fa-plus mr-2"></i>Add Project
+                        </button>
+                    </div>
+                    <div id="projects-list" class="space-y-4">
+                        <!-- Projects will be dynamically loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Tab -->
+            <div id="contact-tab" class="tab-content hidden">
+                <div class="bg-dark-card rounded-xl p-6 border border-dark-border">
+                    <h3 class="text-xl font-bold mb-4 text-primary">Contact Information</h3>
+                    <form id="contact-form" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                                <input type="email" id="contact-email" value="gagan@example.com" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Phone</label>
+                                <input type="tel" id="contact-phone" value="+91 9876543210" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Location</label>
+                            <input type="text" id="contact-location" value="India" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">LinkedIn</label>
+                                <input type="url" id="contact-linkedin" value="https://linkedin.com/in/gagan-kumar" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">GitHub</label>
+                                <input type="url" id="contact-github" value="https://github.com/gagan-kumar" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white">
+                            </div>
+                        </div>
+                        <button type="submit" class="bg-primary text-white px-6 py-2 rounded-lg hover:opacity-90 transition-opacity duration-300">
+                            <i class="fas fa-save mr-2"></i>Update Contact Info
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Messages Tab -->
+            <div id="messages-tab" class="tab-content hidden">
+                <div class="bg-dark-card rounded-xl p-6 border border-dark-border">
+                    <h3 class="text-xl font-bold mb-4 text-primary">Messages</h3>
+                    <div id="messages-list" class="space-y-4">
+                        <!-- Messages will be dynamically loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Adding/Editing Skills -->
+    <div id="skill-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-dark-card p-6 rounded-xl shadow-2xl w-full max-w-md mx-4">
+            <h3 class="text-xl font-bold mb-4 text-primary">Add/Edit Skill</h3>
+            <form id="skill-form">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Skill Name</label>
+                    <input type="text" id="skill-name" required class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Icon (Font Awesome class)</label>
+                    <input type="text" id="skill-icon" placeholder="fab fa-python" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Color</label>
+                    <select id="skill-color" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white">
+                        <option value="orange-500">Orange</option>
+                        <option value="blue-500">Blue</option>
+                        <option value="yellow-500">Yellow</option>
+                        <option value="cyan-500">Cyan</option>
+                        <option value="green-500">Green</option>
+                        <option value="purple-500">Purple</option>
+                        <option value="red-500">Red</option>
+                        <option value="pink-500">Pink</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Skill Level (%)</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="range" id="skill-level" min="0" max="100" value="50" class="flex-1 bg-dark-bg border border-dark-border rounded-lg">
+                        <span id="skill-level-display" class="text-primary font-semibold w-12 text-center">50%</span>
+                    </div>
+                    <div class="mt-2 text-xs text-gray-400">
+                        Drag the slider to set your skill level (0-100%)
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="cancel-skill" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity duration-300">
+                        Cancel
+                    </button>
+                    <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity duration-300">
+                        Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Adding/Editing Projects -->
+    <div id="project-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-dark-card p-6 rounded-xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <h3 class="text-xl font-bold mb-4 text-primary">Add/Edit Project</h3>
+            <form id="project-form">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Project Name</label>
+                        <input type="text" id="project-name" required class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Category</label>
+                        <select id="project-category" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white">
+                            <option value="web">Web App</option>
+                            <option value="mobile">Mobile App</option>
+                            <option value="desktop">Desktop App</option>
+                            <option value="design">UI/UX Design</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Description</label>
+                    <textarea id="project-description" rows="3" required class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white"></textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Live URL</label>
+                        <input type="url" id="project-live" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">GitHub URL</label>
+                        <input type="url" id="project-github" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white">
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Technologies (comma-separated)</label>
+                    <input type="text" id="project-technologies" placeholder="React, Node.js, MongoDB" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Project Image</label>
+                    <input type="file" id="project-image" accept="image/*" class="w-full px-3 py-2 bg-dark-bg border border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-white">
+                    <div id="project-image-preview" class="mt-2 hidden">
+                        <img id="project-image-preview-img" src="" alt="Project preview" class="w-32 h-32 object-cover rounded-lg border border-dark-border">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="cancel-project" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity duration-300">
+                        Cancel
+                    </button>
+                    <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg hover:opacity-90 transition-opacity duration-300">
+                        Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>

@@ -4,6 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gagan Kumar | Full Stack Developer</title>
+    <meta name="description" content="Gagan Kumar - Python Full Stack Developer specializing in modern web applications, desktop automation, and AI-powered solutions.">
+    <meta name="keywords" content="Gagan Kumar, Full Stack Developer, Python, JavaScript, Web Developer, Portfolio">
+    <meta name="author" content="Gagan Kumar">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👨‍💻</text></svg>">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Gagan Kumar | Full Stack Developer">
+    <meta property="og:description" content="Python Full Stack Developer specializing in modern web applications and AI solutions">
+    <meta property="og:image" content="img/IMG_20250629_175830.png">
+    <meta property="og:url" content="https://gagankumar907.github.io">
+    <meta property="og:type" content="website">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Gagan Kumar | Full Stack Developer">
+    <meta name="twitter:description" content="Python Full Stack Developer specializing in modern web applications and AI solutions">
+    <meta name="twitter:image" content="img/IMG_20250629_175830.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -89,6 +109,142 @@
             }
         }
     </script>
+    <style>
+        /* Premium Admin Button Styles */
+        .admin-premium {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 30%, #f97316 70%, #eab308 100%);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 0 20px rgba(239, 68, 68, 0.4),
+                0 0 40px rgba(239, 68, 68, 0.2),
+                inset 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+        
+        .admin-premium::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.8s ease-in-out;
+        }
+        
+        .admin-premium:hover::before {
+            left: 100%;
+        }
+        
+        .admin-premium:hover {
+            box-shadow: 
+                0 0 30px rgba(239, 68, 68, 0.8),
+                0 0 60px rgba(239, 68, 68, 0.6),
+                0 0 90px rgba(239, 68, 68, 0.4),
+                inset 0 0 20px rgba(255, 255, 255, 0.2);
+            transform: scale(1.05) translateY(-2px);
+        }
+        
+        /* Advanced Keyframe Animations */
+        @keyframes scan {
+            0% { transform: translateX(-100%); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100%); opacity: 0; }
+        }
+        
+        @keyframes hologram {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+                border-color: rgba(239, 68, 68, 0.5);
+            }
+            50% { 
+                box-shadow: 0 0 40px rgba(239, 68, 68, 0.8);
+                border-color: rgba(239, 68, 68, 0.8);
+            }
+        }
+        
+        @keyframes quantum-float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-3px) rotate(90deg); }
+            50% { transform: translateY(-6px) rotate(180deg); }
+            75% { transform: translateY(-3px) rotate(270deg); }
+        }
+        
+        @keyframes matrix-glow {
+            0% { opacity: 0; filter: blur(2px); }
+            50% { opacity: 1; filter: blur(0px); }
+            100% { opacity: 0; filter: blur(2px); }
+        }
+        
+        .animate-scan {
+            animation: scan 1.5s ease-in-out infinite;
+        }
+        
+        .animate-hologram {
+            animation: hologram 2s ease-in-out infinite;
+        }
+        
+        .animate-quantum-float {
+            animation: quantum-float 4s ease-in-out infinite;
+        }
+        
+        .animate-matrix-glow {
+            animation: matrix-glow 3s ease-in-out infinite;
+        }
+        
+        /* Cyberpunk Text Effect */
+        .cyberpunk-text {
+            text-shadow: 
+                0 0 5px #ff0000,
+                0 0 10px #ff0000,
+                0 0 15px #ff0000,
+                0 0 20px #ff0000;
+        }
+        
+        /* Glitch Effect */
+        .glitch-effect {
+            position: relative;
+        }
+        
+        .glitch-effect::before,
+        .glitch-effect::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+        }
+        
+        .glitch-effect:hover::before {
+            animation: glitch-1 0.3s infinite;
+            color: #ff0000;
+            opacity: 0.8;
+        }
+        
+        .glitch-effect:hover::after {
+            animation: glitch-2 0.3s infinite;
+            color: #00ffff;
+            opacity: 0.8;
+        }
+        
+        @keyframes glitch-1 {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+        }
+        
+        @keyframes glitch-2 {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(2px, -2px); }
+            40% { transform: translate(2px, 2px); }
+            60% { transform: translate(-2px, -2px); }
+            80% { transform: translate(-2px, 2px); }
+        }
+    </style>
 </head>
 <body class="font-inter bg-white dark:bg-dark-bg text-gray-900 dark:text-white transition-all duration-300 overflow-x-hidden">
     <!-- Cyber Grid Background -->
@@ -135,6 +291,70 @@
                             <div class="absolute inset-0 bg-primary/10 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300"></div>
                             <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-neon-blue transition-all duration-300 group-hover:w-full"></div>
                         </a>
+                        <a href="#" class="admin-button nav-link admin-premium relative group overflow-hidden bg-gradient-to-r from-red-600 via-red-500 to-orange-500 text-white px-6 py-3 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-110 border-2 border-red-400/50 hover:border-red-300">
+                            <!-- Holographic Background Layers -->
+                            <div class="absolute inset-0 bg-gradient-to-r from-red-700 via-red-600 to-orange-600 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                            <div class="absolute inset-0 bg-gradient-to-45deg from-red-500/0 via-red-400/60 to-red-500/0 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            
+                            <!-- Animated Border Pulse -->
+                            <div class="absolute inset-0 rounded-xl border-2 border-red-400/0 group-hover:border-red-300/80 transition-all duration-500 animate-pulse"></div>
+                            <div class="absolute inset-0 rounded-xl border border-white/10 group-hover:border-white/40 transition-all duration-500"></div>
+                            
+                            <!-- Advanced Scan Lines -->
+                            <div class="absolute inset-0 overflow-hidden rounded-xl">
+                                <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-white/90 to-transparent opacity-0 group-hover:opacity-100 animate-scan"></div>
+                                <div class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-yellow-400/80 to-transparent opacity-0 group-hover:opacity-100 animate-scan delay-300"></div>
+                            </div>
+                            
+                            <!-- Matrix-style Background -->
+                            <div class="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500">
+                                <div class="absolute top-2 left-2 w-1 h-1 bg-green-400 rounded-full animate-ping delay-100"></div>
+                                <div class="absolute top-4 right-4 w-0.5 h-0.5 bg-yellow-400 rounded-full animate-ping delay-200"></div>
+                                <div class="absolute bottom-3 left-1/3 w-0.5 h-0.5 bg-red-300 rounded-full animate-ping delay-300"></div>
+                                <div class="absolute bottom-2 right-2 w-1 h-1 bg-orange-400 rounded-full animate-ping delay-400"></div>
+                                <div class="absolute top-1/2 left-1 w-0.5 h-0.5 bg-white/80 rounded-full animate-ping delay-500"></div>
+                            </div>
+                            
+                            <!-- Premium Content Container -->
+                            <span class="relative z-20 flex items-center font-bold tracking-wide">
+                                <div class="relative mr-3">
+                                    <i class="fas fa-user-shield text-lg group-hover:rotate-12 group-hover:scale-125 transition-transform duration-500"></i>
+                                    <div class="absolute -inset-1 bg-white/20 rounded-full opacity-0 group-hover:opacity-100 animate-pulse transition-opacity duration-300"></div>
+                                </div>
+                                <span class="relative">
+                                    ADMIN
+                                    <div class="absolute -right-3 -top-2 w-2.5 h-2.5 bg-yellow-400 rounded-full animate-pulse shadow-lg shadow-yellow-400/70"></div>
+                                    <div class="absolute -right-1 -top-1 w-1 h-1 bg-white rounded-full animate-ping"></div>
+                                </span>
+                            </span>
+                            
+                            <!-- Quantum Particles -->
+                            <div class="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                <div class="absolute top-1 left-3 w-1.5 h-1.5 bg-white/70 rounded-full animate-ping delay-100"></div>
+                                <div class="absolute top-4 right-5 w-1 h-1 bg-yellow-400/80 rounded-full animate-ping delay-250"></div>
+                                <div class="absolute bottom-3 left-1/2 w-0.5 h-0.5 bg-white/60 rounded-full animate-ping delay-400"></div>
+                                <div class="absolute bottom-1 right-2 w-1 h-1 bg-orange-400/70 rounded-full animate-ping delay-600"></div>
+                                <div class="absolute top-1/2 left-1 w-0.5 h-0.5 bg-red-300/80 rounded-full animate-ping delay-800"></div>
+                            </div>
+                            
+                            <!-- Cyberpunk Hover Text -->
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-400 delay-300">
+                                <span class="text-xs font-bold text-white/95 bg-black/40 px-3 py-1 rounded-lg backdrop-blur-sm border border-white/20">
+                                    ⚡ SECURE ACCESS ⚡
+                                </span>
+                            </div>
+                            
+                            <!-- Energy Ripple Effect -->
+                            <div class="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                <div class="absolute top-1/2 left-1/2 w-0 h-0 bg-white/10 rounded-full group-hover:w-full group-hover:h-full group-hover:-translate-x-1/2 group-hover:-translate-y-1/2 transition-all duration-700"></div>
+                                <div class="absolute top-1/2 left-1/2 w-0 h-0 bg-red-400/20 rounded-full group-hover:w-3/4 group-hover:h-3/4 group-hover:-translate-x-1/2 group-hover:-translate-y-1/2 transition-all duration-500 delay-200"></div>
+                            </div>
+                            
+                            <!-- Glitch Effect -->
+                            <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent transform skew-x-12 animate-pulse"></div>
+                            </div>
+                        </a>
                     </div>
                     
                     <!-- Advanced Theme Toggle -->
@@ -180,6 +400,45 @@
                 <a href="#contact" class="block px-4 py-3 text-gray-300 hover:text-primary hover:bg-primary/10 rounded-lg transition-all duration-300">
                     <i class="fas fa-envelope mr-3"></i>Contact
                 </a>
+                <a href="#" class="admin-button block relative group overflow-hidden bg-gradient-to-r from-red-600 to-red-500 text-white rounded-2xl mx-2 shadow-2xl hover:shadow-red-500/50 transition-all duration-700 hover:scale-105 border-2 border-red-400/50 hover:border-red-300">
+                    <!-- Premium Background Layers -->
+                    <div class="absolute inset-0 bg-gradient-to-r from-red-700 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="absolute inset-0 bg-gradient-to-r from-red-500/0 via-red-400/50 to-red-500/0 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                    
+                    <!-- Advanced Border Animation -->
+                    <div class="absolute inset-0 rounded-2xl border-2 border-red-400/0 group-hover:border-red-300/70 transition-all duration-500"></div>
+                    
+                    <!-- Content Container -->
+                    <div class="relative z-10 px-6 py-4 flex items-center font-bold">
+                        <div class="relative mr-4">
+                            <i class="fas fa-user-shield text-xl group-hover:rotate-12 group-hover:scale-110 transition-transform duration-500"></i>
+                            <div class="absolute -inset-2 bg-white/10 rounded-full opacity-0 group-hover:opacity-100 animate-pulse transition-opacity duration-300"></div>
+                        </div>
+                        <span class="relative text-lg tracking-wide">
+                            ADMIN PANEL
+                            <div class="absolute -right-2 -top-2 w-2 h-2 bg-yellow-400 rounded-full animate-pulse shadow-lg shadow-yellow-400/70"></div>
+                        </span>
+                    </div>
+                    
+                    <!-- Mobile Particles -->
+                    <div class="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        <div class="absolute top-2 left-4 w-1 h-1 bg-white/70 rounded-full animate-ping delay-100"></div>
+                        <div class="absolute top-4 right-6 w-0.5 h-0.5 bg-yellow-400/80 rounded-full animate-ping delay-300"></div>
+                        <div class="absolute bottom-3 left-1/2 w-1 h-1 bg-white/60 rounded-full animate-ping delay-500"></div>
+                        <div class="absolute bottom-2 right-4 w-0.5 h-0.5 bg-orange-400/70 rounded-full animate-ping delay-700"></div>
+                    </div>
+                    
+                    <!-- Mobile Scan Lines -->
+                    <div class="absolute inset-0 overflow-hidden rounded-2xl">
+                        <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-white/80 to-transparent opacity-0 group-hover:opacity-100 animate-scan"></div>
+                        <div class="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-yellow-400/80 to-transparent opacity-0 group-hover:opacity-100 animate-scan delay-300"></div>
+                    </div>
+                    
+                    <!-- Energy Wave -->
+                    <div class="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        <div class="absolute top-1/2 left-1/2 w-0 h-0 bg-white/10 rounded-full group-hover:w-full group-hover:h-full group-hover:-translate-x-1/2 group-hover:-translate-y-1/2 transition-all duration-600"></div>
+                    </div>
+                </a>
             </div>
         </div>
     </nav>
@@ -221,18 +480,18 @@
                         
                         <h1 class="text-5xl md:text-7xl font-bold mb-6 leading-tight">
                             <span class="block text-gray-300">I'm</span>
-                            <span class="block bg-gradient-to-r from-primary via-neon-blue to-secondary bg-clip-text text-transparent animate-gradient-x">
+                            <span class="block bg-gradient-to-r from-primary via-neon-blue to-secondary bg-clip-text text-transparent animate-gradient-x" data-profile="name">
                                 Gagan Kumar
                             </span>
                         </h1>
                         
                         <div class="text-2xl md:text-3xl font-semibold mb-8">
                             <span class="text-gray-400">&lt;</span>
-                            <span class="text-primary typing-text">Python | Full Stack Developer</span>
+                            <span class="text-primary typing-text" data-profile="title">Python | Full Stack Developer</span>
                             <span class="text-gray-400">/&gt;</span>
                         </div>
                         
-                        <p class="text-lg text-gray-400 mb-10 max-w-2xl leading-relaxed">
+                        <p class="text-lg text-gray-400 mb-10 max-w-2xl leading-relaxed" data-profile="description">
                             Crafting digital experiences with cutting-edge technologies. 
                             Specialized in building scalable web applications that push the boundaries of innovation.
                         </p>
@@ -258,16 +517,16 @@
                         
                         <!-- Social Links with Glow Effect -->
                         <div class="flex items-center justify-center lg:justify-start space-x-6 mt-10">
-                            <a href="#" class="text-gray-400 hover:text-primary transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_10px_rgba(0,212,255,0.7)]">
+                            <a href="https://github.com/gaganrai-github" class="text-gray-400 hover:text-primary transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_10px_rgba(0,212,255,0.7)]">
                                 <i class="fab fa-github text-2xl"></i>
                             </a>
-                            <a href="#" class="text-gray-400 hover:text-primary transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_10px_rgba(0,212,255,0.7)]">
+                            <a href="https://www.linkedin.com/in/gagan-rai-88024b36a?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" class="text-gray-400 hover:text-primary transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_10px_rgba(0,212,255,0.7)]">
                                 <i class="fab fa-linkedin text-2xl"></i>
                             </a>
                             <a href="#" class="text-gray-400 hover:text-primary transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_10px_rgba(0,212,255,0.7)]">
                                 <i class="fab fa-twitter text-2xl"></i>
                             </a>
-                            <a href="#" class="text-gray-400 hover:text-primary transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_10px_rgba(0,212,255,0.7)]">
+                            <a href="https://www.linkedin.com/in/gagan-rai-88024b36a?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" class="text-gray-400 hover:text-primary transition-all duration-300 hover:scale-125 hover:drop-shadow-[0_0_10px_rgba(0,212,255,0.7)]">
                                 <i class="fas fa-envelope text-2xl"></i>
                             </a>
                         </div>
@@ -288,6 +547,7 @@
                                 <img src="img/IMG_20250629_175830.png" 
                                      alt="Gagan Kumar" 
                                      class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                     data-profile="image"
                                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                 <div class="w-full h-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center hidden">
                                     <i class="fas fa-user text-6xl text-primary"></i>
@@ -369,7 +629,7 @@
                     <!-- Enhanced Stats -->
                     <div class="grid grid-cols-3 gap-6 mt-8">
                         <div class="text-center p-4 bg-gradient-to-br from-primary/10 to-secondary/10 dark:from-primary/20 dark:to-secondary/20 rounded-xl hover:scale-105 transition-transform duration-300">
-                            <div class="text-3xl font-bold text-primary mb-2" data-count="50">0</div>
+                            <div class="text-3xl font-bold text-primary mb-2" data-count="4">0</div>
                             <p class="text-gray-600 dark:text-gray-400 text-sm">Projects Completed</p>
                         </div>
                         <div class="text-center p-4 bg-gradient-to-br from-accent/10 to-primary/10 dark:from-accent/20 dark:to-primary/20 rounded-xl hover:scale-105 transition-transform duration-300">
@@ -377,7 +637,7 @@
                             <p class="text-gray-600 dark:text-gray-400 text-sm">Years Experience</p>
                         </div>
                         <div class="text-center p-4 bg-gradient-to-br from-secondary/10 to-accent/10 dark:from-secondary/20 dark:to-accent/20 rounded-xl hover:scale-105 transition-transform duration-300">
-                            <div class="text-3xl font-bold text-secondary mb-2" data-count="25">0</div>
+                            <div class="text-3xl font-bold text-secondary mb-2" data-count="5">0</div>
                             <p class="text-gray-600 dark:text-gray-400 text-sm">Happy Clients</p>
                         </div>
                     </div>
@@ -413,79 +673,8 @@
                 </p>
             </div>
             
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
-                <!-- Enhanced Skill items -->
-                <div class="skill-item group bg-white dark:bg-dark-card p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 text-center border border-transparent hover:border-orange-500/50">
-                    <div class="relative">
-                        <i class="fab fa-html5 text-4xl text-orange-500 mb-4 group-hover:scale-110 transition-transform duration-300"></i>
-                        <div class="absolute inset-0 bg-orange-500/20 rounded-full scale-0 group-hover:scale-150 transition-transform duration-300 opacity-0 group-hover:opacity-100"></div>
-                    </div>
-                    <h3 class="font-semibold text-gray-900 dark:text-white mb-3">HTML5</h3>
-                    <div class="mt-3 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div class="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full transition-all duration-1000" data-width="95"></div>
-                    </div>
-                    <span class="text-xs text-gray-500 dark:text-gray-400 mt-1 block">95%</span>
-                </div>
-                
-                <div class="skill-item group bg-white dark:bg-dark-card p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 text-center border border-transparent hover:border-blue-500/50">
-                    <div class="relative">
-                        <i class="fab fa-css3-alt text-4xl text-blue-500 mb-4 group-hover:scale-110 transition-transform duration-300"></i>
-                        <div class="absolute inset-0 bg-blue-500/20 rounded-full scale-0 group-hover:scale-150 transition-transform duration-300 opacity-0 group-hover:opacity-100"></div>
-                    </div>
-                    <h3 class="font-semibold text-gray-900 dark:text-white mb-3">CSS3</h3>
-                    <div class="mt-3 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div class="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all duration-1000" data-width="90"></div>
-                    </div>
-                    <span class="text-xs text-gray-500 dark:text-gray-400 mt-1 block">90%</span>
-                </div>
-                
-                <div class="skill-item group bg-white dark:bg-dark-card p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 text-center border border-transparent hover:border-yellow-500/50">
-                    <div class="relative">
-                        <i class="fab fa-js-square text-4xl text-yellow-500 mb-4 group-hover:scale-110 transition-transform duration-300"></i>
-                        <div class="absolute inset-0 bg-yellow-500/20 rounded-full scale-0 group-hover:scale-150 transition-transform duration-300 opacity-0 group-hover:opacity-100"></div>
-                    </div>
-                    <h3 class="font-semibold text-gray-900 dark:text-white mb-3">JavaScript</h3>
-                    <div class="mt-3 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div class="bg-gradient-to-r from-yellow-500 to-orange-500 h-2 rounded-full transition-all duration-1000" data-width="88"></div>
-                    </div>
-                    <span class="text-xs text-gray-500 dark:text-gray-400 mt-1 block">88%</span>
-                </div>
-                
-                <div class="skill-item group bg-white dark:bg-dark-card p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 text-center border border-transparent hover:border-cyan-500/50">
-                    <div class="relative">
-                        <i class="fab fa-react text-4xl text-cyan-500 mb-4 group-hover:scale-110 transition-transform duration-300"></i>
-                        <div class="absolute inset-0 bg-cyan-500/20 rounded-full scale-0 group-hover:scale-150 transition-transform duration-300 opacity-0 group-hover:opacity-100"></div>
-                    </div>
-                    <h3 class="font-semibold text-gray-900 dark:text-white mb-3">React</h3>
-                    <div class="mt-3 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div class="bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full transition-all duration-1000" data-width="85"></div>
-                    </div>
-                    <span class="text-xs text-gray-500 dark:text-gray-400 mt-1 block">85%</span>
-                </div>
-                
-                <div class="skill-item group bg-white dark:bg-dark-card p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 text-center border border-transparent hover:border-green-500/50">
-                    <div class="relative">
-                        <i class="fab fa-node-js text-4xl text-green-500 mb-4 group-hover:scale-110 transition-transform duration-300"></i>
-                        <div class="absolute inset-0 bg-green-500/20 rounded-full scale-0 group-hover:scale-150 transition-transform duration-300 opacity-0 group-hover:opacity-100"></div>
-                    </div>
-                    <h3 class="font-semibold text-gray-900 dark:text-white mb-3">Node.js</h3>
-                    <div class="mt-3 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div class="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-1000" data-width="80"></div>
-                    </div>
-                    <span class="text-xs text-gray-500 dark:text-gray-400 mt-1 block">80%</span>
-                </div>
-                
-                <div class="skill-item group bg-white dark:bg-dark-card p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 text-center border border-transparent hover:border-purple-500/50">
-                    <div class="relative">
-                        <i class="fas fa-database text-4xl text-purple-500 mb-4 group-hover:scale-110 transition-transform duration-300"></i>
-                        <div class="absolute inset-0 bg-purple-500/20 rounded-full scale-0 group-hover:scale-150 transition-transform duration-300 opacity-0 group-hover:opacity-100"></div>
-                    </div>
-                    <h3 class="font-semibold text-gray-900 dark:text-white mb-3">MongoDB</h3>
-                    <div class="mt-3 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div class="bg-gradient-to-r from-purple-500 to-indigo-500 h-2 rounded-full transition-all duration-1000" data-width="75"></div>
-                    </div>
-                    <span class="text-xs text-gray-500 dark:text-gray-400 mt-1 block">75%</span>
-                </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8" data-skills-container>
+                <!-- Skills will be dynamically loaded here -->
             </div>
         </div>
     </section>
@@ -518,7 +707,7 @@
             </div>
             
             <!-- Enhanced Projects Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" data-projects-container>
                 <!-- Project cards with enhanced design -->
                 <div class="project-card group bg-white dark:bg-dark-card rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-gray-100 dark:border-dark-border" data-category="web">
                     <div class="relative overflow-hidden">
@@ -633,7 +822,7 @@
                             </div>
                             <div>
                                 <p class="font-semibold text-gray-900 dark:text-white">Email</p>
-                                <p class="text-gray-600 dark:text-gray-400">gagan.kumar@example.com</p>
+                                <p class="text-gray-600 dark:text-gray-400">gaganrai907@gmail.com
                             </div>
                         </div>
                         
@@ -643,7 +832,7 @@
                             </div>
                             <div>
                                 <p class="font-semibold text-gray-900 dark:text-white">Phone</p>
-                                <p class="text-gray-600 dark:text-gray-400">+91 98765 43210</p>
+                                <p class="text-gray-600 dark:text-gray-400">+91 8878535969</p>
                             </div>
                         </div>
                         
@@ -653,7 +842,7 @@
                             </div>
                             <div>
                                 <p class="font-semibold text-gray-900 dark:text-white">Location</p>
-                                <p class="text-gray-600 dark:text-gray-400">Delhi, India</p>
+                                <p class="text-gray-600 dark:text-gray-400">Bilaspur, Chhattisgarh</p>
                             </div>
                         </div>
                     </div>
@@ -777,6 +966,50 @@
         <i class="fas fa-arrow-up text-lg"></i>
     </button>
 
+    <!-- Hidden Admin Panel Access Button -->
+    <div id="admin-access" class="fixed top-4 left-4 z-50 opacity-0 hover:opacity-100 transition-opacity duration-500">
+        <button class="admin-button admin-premium relative group overflow-hidden bg-gradient-to-r from-red-600 to-red-500 text-white p-4 rounded-2xl shadow-2xl hover:shadow-red-500/60 transition-all duration-700 hover:scale-125 border-2 border-red-400/50 hover:border-red-300">
+            <!-- Futuristic Background -->
+            <div class="absolute inset-0 bg-gradient-to-r from-red-700 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-red-500/0 via-red-400/60 to-red-500/0 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+            
+            <!-- Rotating Border -->
+            <div class="absolute inset-0 rounded-2xl border-2 border-red-400/0 group-hover:border-red-300/80 transition-all duration-500 group-hover:animate-pulse"></div>
+            
+            <!-- Icon Container -->
+            <div class="relative z-10">
+                <i class="fas fa-cog text-lg group-hover:rotate-180 group-hover:scale-125 transition-transform duration-700"></i>
+                <div class="absolute -right-2 -top-2 w-2 h-2 bg-yellow-400 rounded-full animate-pulse shadow-lg shadow-yellow-400/70"></div>
+                <div class="absolute -right-1 -top-1 w-0.5 h-0.5 bg-white rounded-full animate-ping"></div>
+            </div>
+            
+            <!-- Micro Particles -->
+            <div class="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                <div class="absolute top-1 left-1 w-0.5 h-0.5 bg-white/80 rounded-full animate-ping delay-100"></div>
+                <div class="absolute top-3 right-1 w-0.5 h-0.5 bg-yellow-400/80 rounded-full animate-ping delay-300"></div>
+                <div class="absolute bottom-1 left-1/2 w-0.5 h-0.5 bg-white/60 rounded-full animate-ping delay-500"></div>
+                <div class="absolute bottom-1 right-1 w-0.5 h-0.5 bg-orange-400/70 rounded-full animate-ping delay-700"></div>
+            </div>
+            
+            <!-- Mini Scan Lines -->
+            <div class="absolute inset-0 overflow-hidden rounded-2xl">
+                <div class="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-white/90 to-transparent opacity-0 group-hover:opacity-100 animate-scan"></div>
+            </div>
+            
+            <!-- Pulse Ring -->
+            <div class="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                <div class="absolute top-1/2 left-1/2 w-0 h-0 bg-white/10 rounded-full group-hover:w-full group-hover:h-full group-hover:-translate-x-1/2 group-hover:-translate-y-1/2 transition-all duration-600"></div>
+            </div>
+        </button>
+    </div>
+    
+    <!-- Debug Refresh Button (hidden in production) -->
+    <div id="debug-panel" class="fixed bottom-4 left-4 z-50 opacity-0 hover:opacity-100 transition-opacity duration-300">
+        <button onclick="reloadPortfolioData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition-colors duration-300">
+            <i class="fas fa-sync-alt mr-2"></i>Refresh Data
+        </button>
+    </div>
+    
     <script src="js/main.js"></script>
 </body>
 </html>

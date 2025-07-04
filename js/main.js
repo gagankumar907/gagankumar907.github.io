@@ -2,8 +2,258 @@
 
 // Initialize everything when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize theme manager first
+    const themeManager = new AdvancedThemeManager();
+    
+    // Initialize portfolio data manager and load data immediately
+    portfolioDataManager = new PortfolioDataManager();
+    portfolioDataManager.loadFromLocalStorage();
+    
+    // Make portfolioDataManager globally available
+    window.portfolioDataManager = portfolioDataManager;
+    
     initializeAdvancedComponents();
 });
+
+// Portfolio Data Management
+class PortfolioDataManager {
+    constructor() {
+        this.data = null;
+        this.apiBase = window.location.hostname === 'localhost' ? 'http://localhost/api.php' : './api.php';
+    }
+
+    async loadData() {
+        try {
+            const response = await fetch(`${this.apiBase}/data`);
+            if (response.ok) {
+                this.data = await response.json();
+                this.updateUI();
+            } else {
+                // Fallback to localStorage if API fails
+                this.loadFromLocalStorage();
+            }
+        } catch (error) {
+            console.error('Error loading data:', error);
+            this.loadFromLocalStorage();
+        }
+    }
+
+    loadFromLocalStorage() {
+        const savedData = localStorage.getItem('portfolioData');
+        if (savedData) {
+            this.data = JSON.parse(savedData);
+            console.log('Loading data from localStorage:', this.data);
+            this.updateUI();
+        } else {
+            console.log('No saved data found, loading default data');
+            this.loadDefaultData();
+        }
+    }
+
+    loadDefaultData() {
+        this.data = {
+            profile: {
+                name: 'Gagan Kumar',
+                title: 'Python | Full Stack Developer',
+                description: 'Crafting digital experiences with cutting-edge technologies. Specialized in building scalable web applications that push the boundaries of innovation.',
+                image: 'img/IMG_20250629_175830.png'
+            },
+            skills: [
+                { id: 1, name: 'Python', icon: 'fab fa-python', color: 'yellow-500', level: 90 },
+                { id: 2, name: 'JavaScript', icon: 'fab fa-js', color: 'yellow-500', level: 85 },
+                { id: 3, name: 'React', icon: 'fab fa-react', color: 'blue-500', level: 80 },
+                { id: 4, name: 'Node.js', icon: 'fab fa-node-js', color: 'green-500', level: 75 },
+                { id: 5, name: 'Django', icon: 'fab fa-python', color: 'green-500', level: 85 },
+                { id: 6, name: 'MongoDB', icon: 'fas fa-database', color: 'green-500', level: 70 }
+            ],
+            projects: [
+                {
+                    id: 1,
+                    name: 'Telegram Remote Desktop',
+                    category: 'desktop',
+                    description: 'A Python-based remote desktop application that allows users to control their computer remotely through Telegram bot commands.',
+                    technologies: ['Python', 'Telegram Bot API', 'PyAutoGUI', 'PIL'],
+                    liveUrl: '',
+                    githubUrl: 'https://github.com/gaganrai-github/telegram-remote-desktop',
+                    image: ''
+                },
+                {
+                    id: 2,
+                    name: 'Desktop Voice Assistant',
+                    category: 'desktop',
+                    description: 'An AI-powered desktop voice assistant built with Python that can perform various tasks like web browsing, system control, and answering questions.',
+                    technologies: ['Python', 'Speech Recognition', 'pyttsx3', 'OpenAI API'],
+                    liveUrl: '',
+                    githubUrl: 'https://github.com/gaganrai-github/voice-assistant',
+                    image: ''
+                }
+            ],
+            contact: {
+                email: 'gagan@example.com',
+                phone: '+91 9876543210',
+                location: 'India',
+                linkedin: 'https://linkedin.com/in/gagan-kumar',
+                github: 'https://github.com/gagan-kumar'
+            }
+        };
+        this.updateUI();
+    }
+
+    updateUI() {
+        if (!this.data) return;
+
+        // Update profile information
+        const nameElements = document.querySelectorAll('[data-profile="name"]');
+        nameElements.forEach(el => el.textContent = this.data.profile.name);
+
+        const titleElements = document.querySelectorAll('[data-profile="title"]');
+        titleElements.forEach(el => el.textContent = this.data.profile.title);
+
+        const descriptionElements = document.querySelectorAll('[data-profile="description"]');
+        descriptionElements.forEach(el => el.textContent = this.data.profile.description);
+
+        // Update profile image
+        const imageElements = document.querySelectorAll('[data-profile="image"]');
+        imageElements.forEach(el => {
+            if (el.tagName === 'IMG') {
+                el.src = this.data.profile.image;
+            }
+        });
+
+        // Update skills
+        this.updateSkills();
+
+        // Update projects
+        this.updateProjects();
+
+        // Update contact information
+        this.updateContactInfo();
+    }
+
+    updateSkills() {
+        const skillsContainer = document.querySelector('[data-skills-container]');
+        if (!skillsContainer || !this.data.skills) return;
+
+        skillsContainer.innerHTML = '';
+        this.data.skills.forEach(skill => {
+            const skillElement = document.createElement('div');
+            skillElement.className = `skill-item group bg-white dark:bg-dark-card p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 text-center border border-transparent hover:border-${skill.color}/50`;
+            skillElement.innerHTML = `
+                <div class="mb-4">
+                    <i class="${skill.icon} text-4xl text-${skill.color} group-hover:scale-110 transition-transform duration-300"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">${skill.name}</h3>
+                <div class="mb-2">
+                    <span class="text-sm font-medium text-${skill.color}">${skill.level || 50}%</span>
+                </div>
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                    <div class="bg-${skill.color} h-2 rounded-full transition-all duration-1000 ease-out" style="width: ${skill.level || 50}%"></div>
+                </div>
+            `;
+            skillsContainer.appendChild(skillElement);
+        });
+    }
+
+    updateProjects() {
+        const projectsContainer = document.querySelector('[data-projects-container]');
+        if (!projectsContainer || !this.data.projects) return;
+
+        projectsContainer.innerHTML = '';
+        this.data.projects.forEach(project => {
+            const projectElement = document.createElement('div');
+            projectElement.className = 'project-card group bg-white dark:bg-dark-card rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-gray-100 dark:border-dark-border';
+            projectElement.dataset.category = project.category;
+            
+            const gradientColors = {
+                web: 'from-blue-400 via-purple-500 to-pink-500',
+                mobile: 'from-green-400 via-blue-500 to-purple-500',
+                desktop: 'from-orange-400 via-red-500 to-pink-500',
+                design: 'from-purple-400 via-pink-500 to-red-500'
+            };
+
+            projectElement.innerHTML = `
+                <div class="relative overflow-hidden">
+                    <div class="h-48 bg-gradient-to-br ${gradientColors[project.category] || 'from-primary to-secondary'} flex items-center justify-center relative">
+                        ${project.image ? `<img src="${project.image}" alt="${project.name}" class="w-full h-full object-cover">` : `<i class="fas fa-project-diagram text-6xl text-white opacity-80"></i>`}
+                    </div>
+                    <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                        <div class="flex space-x-4">
+                            ${project.liveUrl ? `<a href="${project.liveUrl}" target="_blank" class="bg-white text-gray-900 p-3 rounded-full hover:scale-110 transition-transform duration-300"><i class="fas fa-external-link-alt"></i></a>` : ''}
+                            ${project.githubUrl ? `<a href="${project.githubUrl}" target="_blank" class="bg-white text-gray-900 p-3 rounded-full hover:scale-110 transition-transform duration-300"><i class="fab fa-github"></i></a>` : ''}
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-primary transition-colors duration-300">${project.name}</h3>
+                    <p class="text-gray-600 dark:text-gray-400 mb-4 text-sm leading-relaxed">${project.description}</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        ${project.technologies.map(tech => `<span class="bg-primary/10 text-primary px-2 py-1 rounded-full text-xs font-medium">${tech}</span>`).join('')}
+                    </div>
+                    <div class="flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-700">
+                        <span class="text-sm text-gray-500 dark:text-gray-400 capitalize">${project.category}</span>
+                        <div class="flex space-x-2">
+                            ${project.liveUrl ? `<a href="${project.liveUrl}" target="_blank" class="text-primary hover:text-secondary transition-colors duration-300"><i class="fas fa-external-link-alt"></i></a>` : ''}
+                            ${project.githubUrl ? `<a href="${project.githubUrl}" target="_blank" class="text-primary hover:text-secondary transition-colors duration-300"><i class="fab fa-github"></i></a>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+            projectsContainer.appendChild(projectElement);
+        });
+    }
+
+    updateContactInfo() {
+        if (!this.data.contact) return;
+
+        const contactElements = {
+            email: document.querySelectorAll('[data-contact="email"]'),
+            phone: document.querySelectorAll('[data-contact="phone"]'),
+            location: document.querySelectorAll('[data-contact="location"]'),
+            linkedin: document.querySelectorAll('[data-contact="linkedin"]'),
+            github: document.querySelectorAll('[data-contact="github"]')
+        };
+
+        Object.keys(contactElements).forEach(key => {
+            contactElements[key].forEach(el => {
+                if (el.tagName === 'A') {
+                    el.href = this.data.contact[key];
+                } else {
+                    el.textContent = this.data.contact[key];
+                }
+            });
+        });
+    }
+
+    async saveContactMessage(formData) {
+        try {
+            const response = await fetch(`${this.apiBase}/contact-form`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                return result;
+            }
+        } catch (error) {
+            console.error('Error saving contact message:', error);
+        }
+        return { success: false, message: 'Failed to send message' };
+    }
+}
+
+// Initialize portfolio data manager (moved to top)
+let portfolioDataManager = null;
+
+// Function to load portfolio data
+function loadPortfolioData() {
+    if (portfolioDataManager) {
+        portfolioDataManager.loadFromLocalStorage();
+    }
+}
 
 // Advanced Theme Management
 class AdvancedThemeManager {
@@ -105,6 +355,9 @@ function initializeAdvancedComponents() {
     setupAdvancedInteractions();
     setupAdvancedParticles();
     setupAdvancedCursor();
+    setupContactForm();
+    setupProjectFiltering();
+    setupAdminButtons(); // Add admin button setup
 }
 
 // Advanced Navigation
@@ -489,36 +742,149 @@ function setupAdvancedCursor() {
     });
 }
 
-// Initialize theme manager
-const themeManager = new AdvancedThemeManager();
+// Contact Form Handling
+function setupContactForm() {
+    const contactForm = document.getElementById('contact-form');
+    if (contactForm) {
+        contactForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(contactForm);
+            const data = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                subject: formData.get('subject'),
+                message: formData.get('message')
+            };
+            
+            const result = await portfolioDataManager.saveContactMessage(data);
+            
+            if (result.success) {
+                showNotification('Message sent successfully!', 'success');
+                contactForm.reset();
+            } else {
+                showNotification('Failed to send message. Please try again.', 'error');
+            }
+        });
+    }
+}
 
-// Add scroll to top functionality
-function setupScrollToTop() {
-    const scrollBtn = document.createElement('button');
-    scrollBtn.className = 'fixed bottom-8 right-8 bg-gradient-to-r from-primary to-secondary text-dark p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 opacity-0 invisible z-40 hover:scale-110';
-    scrollBtn.innerHTML = '<i class="fas fa-arrow-up text-lg"></i>';
-    scrollBtn.style.boxShadow = '0 0 20px rgba(0, 212, 255, 0.5)';
+// Project Filtering
+function setupProjectFiltering() {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const projectCards = document.querySelectorAll('.project-card');
     
-    document.body.appendChild(scrollBtn);
-    
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 300) {
-            scrollBtn.classList.remove('opacity-0', 'invisible');
-            scrollBtn.classList.add('opacity-100', 'visible');
-        } else {
-            scrollBtn.classList.add('opacity-0', 'invisible');
-            scrollBtn.classList.remove('opacity-100', 'visible');
-        }
-    });
-    
-    scrollBtn.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const filter = button.dataset.filter;
+            
+            // Update active button
+            filterButtons.forEach(btn => {
+                btn.classList.remove('active', 'bg-gradient-to-r', 'from-primary', 'to-secondary', 'text-white');
+                btn.classList.add('bg-gray-200', 'dark:bg-dark-card', 'text-gray-700', 'dark:text-gray-300');
+            });
+            
+            button.classList.add('active', 'bg-gradient-to-r', 'from-primary', 'to-secondary', 'text-white');
+            button.classList.remove('bg-gray-200', 'dark:bg-dark-card', 'text-gray-700', 'dark:text-gray-300');
+            
+            // Filter projects
+            projectCards.forEach(card => {
+                if (filter === 'all' || card.dataset.category === filter) {
+                    card.style.display = 'block';
+                    card.classList.add('animate-fade-in');
+                } else {
+                    card.style.display = 'none';
+                    card.classList.remove('animate-fade-in');
+                }
+            });
+        });
     });
 }
+
+// Setup Admin Buttons
+function setupAdminButtons() {
+    // Select all admin buttons (desktop, mobile, and hidden)
+    const adminButtons = document.querySelectorAll('.admin-button');
+    
+    adminButtons.forEach((button) => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            openAdminPanel();
+        });
+    });
+    
+    // Also add event listener for the hidden admin access button
+    const hiddenAdminButton = document.querySelector('#admin-access button');
+    if (hiddenAdminButton) {
+        hiddenAdminButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            openAdminPanel();
+        });
+    }
+}
+
+// Notification System
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 ${
+        type === 'success' ? 'bg-green-600' : 'bg-red-600'
+    } text-white`;
+    notification.innerHTML = `
+        <div class="flex items-center space-x-2">
+            <i class="fas ${type === 'success' ? 'fa-check' : 'fa-exclamation-triangle'}"></i>
+            <span>${message}</span>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-2 hover:opacity-70">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+// Admin Panel Access
+function openAdminPanel() {
+    // Open admin login page
+    window.open('admin-login.html', '_blank');
+}
+
+// Make function globally available
+window.openAdminPanel = openAdminPanel;
+
+// Show admin button on secret key combination (Ctrl + Alt + A)
+document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.altKey && e.key === 'a') {
+        const adminButton = document.getElementById('admin-access');
+        adminButton.classList.toggle('opacity-0');
+        adminButton.classList.toggle('opacity-100');
+    }
+});
+
+// Console easter egg with admin info
+console.log(`
+%c╔══════════════════════════════════════╗
+║                                      ║
+║         Welcome to my portfolio!     ║
+║                                      ║
+║    Built with 💙 by Gagan Kumar      ║
+║                                      ║
+║    🔐 Admin Panel Access:            ║
+║    • URL: admin.html                 ║
+║    • Username: admin                 ║
+║    • Password: gagan123              ║
+║    • Shortcut: Ctrl+Alt+A            ║
+║                                      ║
+╚══════════════════════════════════════╝
+`, 'color: #00d4ff; font-family: monospace; font-size: 12px;');
 
 // Initialize on load
 window.addEventListener('load', () => {
     setupScrollToTop();
+    setupContactForm();
+    setupProjectFiltering();
     
     // Remove loading screen if exists
     const loader = document.getElementById('loader');
@@ -544,6 +910,32 @@ const debounce = (func, wait) => {
     };
 };
 
+// Debug function to check localStorage data
+function debugPortfolioData() {
+    const savedData = localStorage.getItem('portfolioData');
+    if (savedData) {
+        console.log('Portfolio data found in localStorage:', JSON.parse(savedData));
+        return JSON.parse(savedData);
+    } else {
+        console.log('No portfolio data found in localStorage');
+        return null;
+    }
+}
+
+// Debug function to reload data
+function reloadPortfolioData() {
+    console.log('Reloading portfolio data...');
+    if (window.portfolioDataManager) {
+        window.portfolioDataManager.loadFromLocalStorage();
+    } else {
+        console.error('Portfolio data manager not found');
+    }
+}
+
+// Make debug functions available globally
+window.debugPortfolioData = debugPortfolioData;
+window.reloadPortfolioData = reloadPortfolioData;
+
 // Console easter egg
 console.log(`
 %c╔══════════════════════════════════════╗
@@ -554,3 +946,26 @@ console.log(`
 ║                                      ║
 ╚══════════════════════════════════════╝
 `, 'color: #00d4ff; font-family: monospace; font-size: 12px;');
+
+// Listen for localStorage changes from admin panel
+window.addEventListener('storage', (e) => {
+    if (e.key === 'portfolioData') {
+        console.log('Portfolio data changed, reloading...');
+        portfolioDataManager.loadFromLocalStorage();
+    }
+});
+
+// Force refresh portfolio data every 5 seconds if we're not in admin panel
+if (!window.location.pathname.includes('admin')) {
+    setInterval(() => {
+        const currentData = localStorage.getItem('portfolioData');
+        if (currentData) {
+            const newData = JSON.parse(currentData);
+            if (JSON.stringify(newData) !== JSON.stringify(portfolioDataManager.data)) {
+                console.log('Data changed, updating UI...');
+                portfolioDataManager.data = newData;
+                portfolioDataManager.updateUI();
+            }
+        }
+    }, 5000);
+}
