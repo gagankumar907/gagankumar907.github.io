@@ -1,13 +1,16 @@
-// main.js file for the portfolio website
+// main.js file for the portfolio website with real-time sync
 
 // Initialize everything when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize theme manager first
+document.addEventListener('DOMContentLoaded', async () => {
+    // Initialize Firebase sync first
+    await initializeRealtimeSync();
+    
+    // Initialize theme manager
     const themeManager = new AdvancedThemeManager();
     
     // Initialize portfolio data manager and load data immediately
     portfolioDataManager = new PortfolioDataManager();
-    portfolioDataManager.loadFromLocalStorage();
+    await portfolioDataManager.loadData();
     
     // Make portfolioDataManager globally available
     window.portfolioDataManager = portfolioDataManager;
@@ -15,27 +18,96 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeAdvancedComponents();
 });
 
-// Portfolio Data Management
+// Initialize real-time sync for main page
+async function initializeRealtimeSync() {
+    // Wait for Firebase sync to be available
+    let attempts = 0;
+    while (!window.firebaseSync && attempts < 50) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+    }
+    
+    if (window.firebaseSync) {
+        console.log('🔄 Real-time sync enabled for main page');
+        
+        // Set up real-time UI updates
+        window.updatePortfolioUI = (data) => {
+            if (window.portfolioDataManager) {
+                window.portfolioDataManager.data = data;
+                window.portfolioDataManager.updateAllSections();
+                
+                // Show sync indicator
+                showSyncStatus('updated');
+                
+                console.log('✨ UI updated with real-time data');
+            }
+        };
+        
+        // Show that real-time sync is active
+        showSyncStatus('live');
+    } else {
+        console.warn('⚠️ Real-time sync not available, using static data');
+        showSyncStatus('offline');
+    }
+}
+
+// Show sync status indicator on main page
+function showSyncStatus(status) {
+    const indicator = document.getElementById('sync-status');
+    if (!indicator) return;
+    
+    indicator.classList.remove('bg-green-600', 'bg-blue-600', 'bg-red-600', 'bg-yellow-600');
+    
+    switch (status) {
+        case 'live':
+            indicator.className = 'fixed top-4 right-4 z-50 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-medium opacity-100 transition-opacity duration-300';
+            indicator.innerHTML = '<i class="fas fa-wifi mr-1"></i><span>Live</span>';
+            break;
+        case 'updated':
+            indicator.className = 'fixed top-4 right-4 z-50 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-medium opacity-100 transition-opacity duration-300';
+            indicator.innerHTML = '<i class="fas fa-sync fa-spin mr-1"></i><span>Updated</span>';
+            setTimeout(() => showSyncStatus('live'), 2000);
+            break;
+        case 'offline':
+            indicator.className = 'fixed top-4 right-4 z-50 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-medium opacity-100 transition-opacity duration-300';
+            indicator.innerHTML = '<i class="fas fa-wifi-slash mr-1"></i><span>Offline</span>';
+            break;
+    }
+}
+
+// Portfolio Data Management with Real-time Sync
 class PortfolioDataManager {
     constructor() {
         this.data = null;
-        this.apiBase = window.location.hostname === 'localhost' ? 'http://localhost/api.php' : './api.php';
+        this.syncManager = window.firebaseSync;
     }
 
     async loadData() {
         try {
-            const response = await fetch(`${this.apiBase}/data`);
+            // Try to load from real-time sync first
+            if (this.syncManager) {
+                this.data = await this.syncManager.getPortfolioData();
+                if (this.data) {
+                    console.log('📡 Data loaded from real-time sync');
+                    this.updateAllSections();
+                    return;
+                }
+            }
+            
+            // Fallback to JSON file
+            const response = await fetch('./data/portfolio.json?' + Date.now());
             if (response.ok) {
                 this.data = await response.json();
+                console.log('Data loaded from JSON file:', this.data);
                 this.updateUI();
-            } else {
-                // Fallback to localStorage if API fails
-                this.loadFromLocalStorage();
+                return;
             }
         } catch (error) {
-            console.error('Error loading data:', error);
-            this.loadFromLocalStorage();
+            console.log('Could not load from JSON file, trying localStorage...');
         }
+
+        // Fallback to localStorage
+        this.loadFromLocalStorage();
     }
 
     loadFromLocalStorage() {
@@ -100,6 +172,10 @@ class PortfolioDataManager {
     }
 
     updateUI() {
+        this.updateAllSections();
+    }
+
+    updateAllSections() {
         if (!this.data) return;
 
         // Update profile information

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Sync Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/firebase-config.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .demo-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            color: white;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin: 0.25rem;
+        }
+        .status-online { background-color: #10b981; color: white; }
+        .status-offline { background-color: #ef4444; color: white; }
+        .status-syncing { background-color: #3b82f6; color: white; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-4">
+                <i class="fas fa-sync-alt mr-2"></i>
+                Real-time Portfolio Sync Demo
+            </h1>
+            <p class="text-gray-400">
+                This demo shows how the real-time sync system works across multiple browsers
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <!-- Sync Status Card -->
+            <div class="demo-card">
+                <h2 class="text-2xl font-bold mb-4">
+                    <i class="fas fa-cloud mr-2"></i>Sync Status
+                </h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span>Connection:</span>
+                        <div id="connection-status" class="status-indicator status-online">
+                            <i class="fas fa-wifi mr-2"></i>Online
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span>Database:</span>
+                        <div id="db-status" class="status-indicator status-online">
+                            <i class="fas fa-database mr-2"></i>Connected
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span>Real-time:</span>
+                        <div id="realtime-status" class="status-indicator status-online">
+                            <i class="fas fa-bolt mr-2"></i>Active
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span>Last Sync:</span>
+                        <div id="last-sync" class="text-sm bg-white/20 px-3 py-1 rounded-full">
+                            Never
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Controls -->
+            <div class="demo-card">
+                <h2 class="text-2xl font-bold mb-4">
+                    <i class="fas fa-cog mr-2"></i>Test Controls
+                </h2>
+                <div class="space-y-4">
+                    <button id="test-sync" class="w-full bg-white/20 hover:bg-white/30 px-4 py-3 rounded-lg transition-colors duration-300">
+                        <i class="fas fa-sync mr-2"></i>Test Data Sync
+                    </button>
+                    <button id="simulate-change" class="w-full bg-white/20 hover:bg-white/30 px-4 py-3 rounded-lg transition-colors duration-300">
+                        <i class="fas fa-edit mr-2"></i>Simulate Portfolio Change
+                    </button>
+                    <button id="force-refresh" class="w-full bg-white/20 hover:bg-white/30 px-4 py-3 rounded-lg transition-colors duration-300">
+                        <i class="fas fa-refresh mr-2"></i>Force Data Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Data Display -->
+        <div class="demo-card mb-8">
+            <h2 class="text-2xl font-bold mb-4">
+                <i class="fas fa-eye mr-2"></i>Live Portfolio Data
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">Skills Count</h3>
+                    <div id="skills-count" class="text-3xl font-bold text-yellow-300">
+                        Loading...
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">Projects Count</h3>
+                    <div id="projects-count" class="text-3xl font-bold text-green-300">
+                        Loading...
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">Profile Name</h3>
+                    <div id="profile-name" class="text-xl font-medium text-blue-300">
+                        Loading...
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-3">Last Updated</h3>
+                    <div id="last-updated" class="text-sm text-purple-300">
+                        Loading...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="bg-gray-800 rounded-xl p-6">
+            <h2 class="text-xl font-bold mb-4">
+                <i class="fas fa-info-circle mr-2"></i>How It Works
+            </h2>
+            <div class="space-y-3 text-gray-300">
+                <p>
+                    <strong>1. Real-time Sync:</strong> The system uses Firebase Firestore for real-time database synchronization across all browsers and devices.
+                </p>
+                <p>
+                    <strong>2. Instant Updates:</strong> When you make changes in the admin panel, they are instantly pushed to all connected browsers without page refresh.
+                </p>
+                <p>
+                    <strong>3. Offline Support:</strong> Changes are cached locally when offline and synced when connection is restored.
+                </p>
+                <p>
+                    <strong>4. Cross-Browser:</strong> Open this page in multiple browsers and make changes in the admin panel to see real-time updates.
+                </p>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="text-center mt-8">
+            <a href="index.html" class="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-300 mr-4">
+                <i class="fas fa-home mr-2"></i>Main Portfolio
+            </a>
+            <a href="admin-login.html" class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-300">
+                <i class="fas fa-cog mr-2"></i>Admin Panel
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Demo functionality
+        let syncManager = null;
+        let testData = null;
+
+        // Initialize demo
+        async function initDemo() {
+            // Wait for Firebase sync
+            let attempts = 0;
+            while (!window.firebaseSync && attempts < 50) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+            }
+
+            if (window.firebaseSync) {
+                syncManager = window.firebaseSync;
+                console.log('✅ Demo connected to real-time sync');
+                updateStatus('online');
+                loadLiveData();
+                setupRealtimeListener();
+            } else {
+                updateStatus('offline');
+                console.warn('❌ Demo failed to connect to sync');
+            }
+        }
+
+        // Update status indicators
+        function updateStatus(status) {
+            const connectionEl = document.getElementById('connection-status');
+            const dbEl = document.getElementById('db-status');
+            const realtimeEl = document.getElementById('realtime-status');
+
+            if (status === 'online') {
+                connectionEl.className = 'status-indicator status-online';
+                connectionEl.innerHTML = '<i class="fas fa-wifi mr-2"></i>Online';
+                dbEl.className = 'status-indicator status-online';
+                dbEl.innerHTML = '<i class="fas fa-database mr-2"></i>Connected';
+                realtimeEl.className = 'status-indicator status-online';
+                realtimeEl.innerHTML = '<i class="fas fa-bolt mr-2"></i>Active';
+            } else {
+                connectionEl.className = 'status-indicator status-offline';
+                connectionEl.innerHTML = '<i class="fas fa-wifi-slash mr-2"></i>Offline';
+                dbEl.className = 'status-indicator status-offline';
+                dbEl.innerHTML = '<i class="fas fa-database mr-2"></i>Disconnected';
+                realtimeEl.className = 'status-indicator status-offline';
+                realtimeEl.innerHTML = '<i class="fas fa-bolt mr-2"></i>Inactive';
+            }
+        }
+
+        // Load live data
+        async function loadLiveData() {
+            if (!syncManager) return;
+
+            try {
+                testData = await syncManager.getPortfolioData();
+                updateDataDisplay(testData);
+            } catch (error) {
+                console.error('Failed to load data:', error);
+            }
+        }
+
+        // Update data display
+        function updateDataDisplay(data) {
+            if (!data) return;
+
+            document.getElementById('skills-count').textContent = data.skills ? data.skills.length : 0;
+            document.getElementById('projects-count').textContent = data.projects ? data.projects.length : 0;
+            document.getElementById('profile-name').textContent = data.profile ? data.profile.name : 'Unknown';
+            document.getElementById('last-updated').textContent = data.lastUpdated ? 
+                new Date(data.lastUpdated).toLocaleString() : 'Never';
+            document.getElementById('last-sync').textContent = new Date().toLocaleTimeString();
+        }
+
+        // Setup real-time listener
+        function setupRealtimeListener() {
+            window.updatePortfolioUI = (data) => {
+                updateDataDisplay(data);
+                
+                // Show visual feedback
+                document.body.style.background = 'linear-gradient(135deg, #10b981 0%, #3b82f6 100%)';
+                setTimeout(() => {
+                    document.body.style.background = '';
+                }, 200);
+                
+                console.log('📡 Demo received real-time update');
+            };
+        }
+
+        // Button handlers
+        document.getElementById('test-sync').addEventListener('click', async () => {
+            if (syncManager && testData) {
+                await syncManager.updatePortfolioData(testData);
+                console.log('🔄 Test sync completed');
+            }
+        });
+
+        document.getElementById('simulate-change').addEventListener('click', async () => {
+            if (syncManager && testData) {
+                testData.profile.name = `Test User ${Math.floor(Math.random() * 100)}`;
+                testData.lastUpdated = new Date().toISOString();
+                await syncManager.updatePortfolioData(testData);
+                console.log('✏️ Simulated change applied');
+            }
+        });
+
+        document.getElementById('force-refresh').addEventListener('click', () => {
+            loadLiveData();
+            console.log('🔄 Data refreshed');
+        });
+
+        // Connection status monitoring
+        window.addEventListener('online', () => updateStatus('online'));
+        window.addEventListener('offline', () => updateStatus('offline'));
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initDemo);
+    </script>
+</body>
+</html>

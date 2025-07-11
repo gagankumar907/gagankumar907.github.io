@@ -1,0 +1,52 @@
+{
+  "profile": {
+    "name": "Gagan Kumar",
+    "title": "Python | Full Stack Developer",
+    "description": "Crafting digital experiences with cutting-edge technologies. Specialized in building scalable web applications that push the boundaries of innovation.",
+    "image": "img/IMG_20250629_175830.png"
+  },
+  "skills": [
+    { "id": 1, "name": "Python", "icon": "fab fa-python", "color": "yellow-500", "level": 90 },
+    { "id": 2, "name": "JavaScript", "icon": "fab fa-js", "color": "yellow-500", "level": 85 },
+    { "id": 3, "name": "React", "icon": "fab fa-react", "color": "blue-500", "level": 80 },
+    { "id": 4, "name": "Node.js", "icon": "fab fa-node-js", "color": "green-500", "level": 75 },
+    { "id": 5, "name": "Django", "icon": "fab fa-python", "color": "green-500", "level": 85 },
+    { "id": 6, "name": "MongoDB", "icon": "fas fa-database", "color": "green-500", "level": 70 }
+  ],
+  "projects": [
+    {
+      "id": 1,
+      "name": "Telegram Remote Desktop",
+      "category": "desktop",
+      "description": "A Python-based remote desktop application that allows users to control their computer remotely through Telegram bot commands.",
+      "technologies": ["Python", "Telegram Bot API", "PyAutoGUI", "PIL"],
+      "liveUrl": "",
+      "githubUrl": "https://github.com/gaganrai-github/telegram-remote-desktop",
+      "image": ""
+    },
+    {
+      "id": 2,
+      "name": "Desktop Voice Assistant",
+      "category": "desktop",
+      "description": "An AI-powered desktop voice assistant built with Python that can perform various tasks like web browsing, system control, and answering questions.",
+      "technologies": ["Python", "Speech Recognition", "pyttsx3", "OpenAI API"],
+      "liveUrl": "",
+      "githubUrl": "https://github.com/gaganrai-github/voice-assistant",
+      "image": ""
+    }
+  ],
+  "contact": {
+    "email": "gagan@example.com",
+    "phone": "+91 9876543210",
+    "location": "India",
+    "linkedin": "https://linkedin.com/in/gagan-kumar",
+    "github": "https://github.com/gagan-kumar"
+  },
+  "stats": {
+    "profileViews": 1250,
+    "projectsCompleted": 4,
+    "yearsExperience": 3,
+    "happyClients": 5
+  },
+  "messages": []
+}

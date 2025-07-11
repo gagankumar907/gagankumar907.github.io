@@ -1,16 +1,121 @@
-// Admin Panel JavaScript
+// Admin Panel JavaScript with Real-time Firebase Sync
 class AdminPanel {
     constructor() {
         this.isLoggedIn = false;
         this.currentTab = 'profile';
-        this.data = this.loadData();
+        this.data = {};
+        this.syncManager = null;
         this.init();
     }
 
-    init() {
+    async init() {
         this.checkAuth();
+        await this.initializeSync();
         this.setupEventListeners();
-        this.loadDashboardData();
+        this.setupSyncUI();
+        await this.loadDashboardData();
+    }
+
+    async initializeSync() {
+        // Wait for Firebase sync to be ready
+        if (window.firebaseSync) {
+            this.syncManager = window.firebaseSync;
+            console.log('✅ Real-time sync initialized');
+            
+            // Set up real-time data loading
+            window.loadAdminData = (data) => {
+                this.data = data;
+                this.refreshAdminUI();
+            };
+        } else {
+            console.warn('⚠️ Firebase sync not available, using localStorage');
+        }
+    }
+
+    setupSyncUI() {
+        // Update sync status indicators
+        this.updateSyncStatus();
+        
+        // Setup sync button handlers
+        const forceSyncBtn = document.getElementById('force-sync-btn');
+        if (forceSyncBtn) {
+            forceSyncBtn.addEventListener('click', () => this.forceSyncData());
+        }
+
+        const backupBtn = document.getElementById('backup-data-btn');
+        if (backupBtn) {
+            backupBtn.addEventListener('click', () => this.backupData());
+        }
+
+        // Update connection status
+        window.addEventListener('online', () => this.updateConnectionStatus(true));
+        window.addEventListener('offline', () => this.updateConnectionStatus(false));
+    }
+
+    updateSyncStatus() {
+        const connectionStatus = document.getElementById('connection-status');
+        const connectionText = document.getElementById('connection-text');
+        const syncStatus = document.getElementById('sync-status');
+        const syncText = document.getElementById('sync-text');
+        
+        if (navigator.onLine) {
+            connectionStatus.innerHTML = '<i class="fas fa-wifi text-green-400"></i>';
+            connectionText.textContent = 'Online';
+            syncStatus.innerHTML = '<i class="fas fa-check-circle text-green-400"></i>';
+            syncText.textContent = 'Real-time';
+        } else {
+            connectionStatus.innerHTML = '<i class="fas fa-wifi-slash text-red-400"></i>';
+            connectionText.textContent = 'Offline';
+            syncStatus.innerHTML = '<i class="fas fa-exclamation-triangle text-yellow-400"></i>';
+            syncText.textContent = 'Local Only';
+        }
+    }
+
+    updateConnectionStatus(online) {
+        this.updateSyncStatus();
+        if (online && this.syncManager) {
+            this.syncManager.syncPendingChanges();
+        }
+    }
+
+    async forceSyncData() {
+        if (this.syncManager) {
+            this.syncManager.showSyncStatus('syncing');
+            await this.syncManager.updatePortfolioData(this.data);
+            this.updateLastSyncTime();
+        }
+    }
+
+    backupData() {
+        const dataStr = JSON.stringify(this.data, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `portfolio-backup-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+    }
+
+    updateLastSyncTime() {
+        const updateTime = document.getElementById('update-time');
+        if (updateTime) {
+            updateTime.textContent = new Date().toLocaleTimeString();
+        }
+    }
+
+    refreshAdminUI() {
+        // Add visual feedback for real-time updates
+        const container = document.querySelector('.container');
+        if (container) {
+            container.classList.add('data-updated');
+            setTimeout(() => container.classList.remove('data-updated'), 500);
+        }
+        
+        // Refresh all admin sections
+        this.loadSkillsList();
+        this.loadProjectsList();
+        this.updateLastSyncTime();
     }
 
     checkAuth() {
@@ -99,6 +204,15 @@ class AdminPanel {
             e.preventDefault();
             this.updateContact();
         });
+
+        // Data sync functionality
+        document.getElementById('export-data-btn').addEventListener('click', () => {
+            this.exportData();
+        });
+
+        document.getElementById('import-data-input').addEventListener('change', (e) => {
+            this.importData(e);
+        });
     }
 
     handleLogin() {
@@ -170,7 +284,7 @@ class AdminPanel {
         }
     }
 
-    loadData() {
+    async loadData() {
         const defaultData = {
             profile: {
                 name: 'Gagan Kumar',
@@ -221,23 +335,116 @@ class AdminPanel {
                 totalProjects: 2,
                 totalSkills: 6,
                 totalMessages: 0
-            }
+            },
+            lastUpdated: new Date().toISOString()
         };
+
+        if (this.syncManager) {
+            try {
+                const cloudData = await this.syncManager.getPortfolioData();
+                return cloudData || defaultData;
+            } catch (error) {
+                console.warn('Failed to load from cloud, using local data');
+            }
+        }
 
         const savedData = localStorage.getItem('portfolioData');
         return savedData ? JSON.parse(savedData) : defaultData;
     }
 
-    saveData() {
-        localStorage.setItem('portfolioData', JSON.stringify(this.data));
+    async saveData() {
+        this.data.lastUpdated = new Date().toISOString();
+        
+        if (this.syncManager) {
+            this.syncManager.showSyncStatus('syncing');
+            await this.syncManager.updatePortfolioData(this.data);
+            this.updateLastSyncTime();
+        } else {
+            // Fallback to localStorage
+            localStorage.setItem('portfolioData', JSON.stringify(this.data));
+        }
+        
         this.updatePortfolioData();
+        
+        // Auto-backup for safety
+        this.autoBackup();
     }
 
-    loadDashboardData() {
+    generateJSONFile() {
+        const dataStr = JSON.stringify(this.data, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        
+        // Create download link
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(dataBlob);
+        link.download = 'portfolio.json';
+        
+        // Show notification with download option
+        this.showDownloadNotification(link);
+    }
+
+    showDownloadNotification(downloadLink) {
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg bg-blue-600 text-white max-w-sm';
+        notification.innerHTML = `
+            <div class="flex items-start space-x-3">
+                <i class="fas fa-download text-lg mt-1"></i>
+                <div class="flex-1">
+                    <h4 class="font-semibold mb-2">Data Updated!</h4>
+                    <p class="text-sm mb-3">To sync changes across all browsers, download and replace the portfolio.json file in the data folder.</p>
+                    <div class="flex space-x-2">
+                        <button onclick="this.previousElementSibling.previousElementSibling.click()" class="bg-white text-blue-600 px-3 py-1 rounded text-sm font-medium hover:bg-gray-100">
+                            Download JSON
+                        </button>
+                        <button onclick="this.parentElement.parentElement.parentElement.remove()" class="bg-blue-700 text-white px-3 py-1 rounded text-sm font-medium hover:bg-blue-800">
+                            Close
+                        </button>
+                    </div>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="text-white/70 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+        
+        // Add hidden download link
+        notification.appendChild(downloadLink);
+        
+        document.body.appendChild(notification);
+        
+        // Auto remove after 10 seconds
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.remove();
+            }
+        }, 10000);
+    }
+
+    autoBackup() {
+        // Auto-backup every hour to prevent data loss
+        const lastBackup = localStorage.getItem('lastAutoBackup');
+        const now = Date.now();
+        
+        if (!lastBackup || (now - parseInt(lastBackup)) > 3600000) { // 1 hour
+            localStorage.setItem('portfolioBackup', JSON.stringify(this.data));
+            localStorage.setItem('lastAutoBackup', now.toString());
+            console.log('📦 Auto-backup created');
+        }
+    }
+
+    async loadDashboardData() {
+        // Load data from cloud/local storage
+        this.data = await this.loadData();
+        
+        // Update dashboard stats
         document.getElementById('total-projects').textContent = this.data.projects.length;
         document.getElementById('total-skills').textContent = this.data.skills.length;
         document.getElementById('total-messages').textContent = this.data.messages.length;
         document.getElementById('profile-views').textContent = this.data.stats.profileViews;
+        
+        // Load all sections
+        this.loadAllData();
+        this.updateLastSyncTime();
     }
 
     loadAllData() {
@@ -635,6 +842,62 @@ class AdminPanel {
             notification.remove();
         }, 5000);
     }
+
+    exportData() {
+        const dataStr = JSON.stringify(this.data, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(dataBlob);
+        link.download = 'portfolio.json';
+        link.click();
+        
+        this.showNotification('Portfolio data exported successfully!', 'success');
+    }
+
+    importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                
+                // Validate data structure
+                if (this.validateDataStructure(importedData)) {
+                    this.data = importedData;
+                    this.saveData();
+                    this.loadDashboardData();
+                    this.loadProfile();
+                    this.loadSkills();
+                    this.loadProjects();
+                    this.loadContactInfo();
+                    
+                    this.showNotification('Portfolio data imported successfully!', 'success');
+                } else {
+                    this.showNotification('Invalid JSON file format!', 'error');
+                }
+            } catch (error) {
+                console.error('Error importing data:', error);
+                this.showNotification('Error reading JSON file!', 'error');
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    validateDataStructure(data) {
+        // Basic validation to ensure required fields exist
+        return data && 
+               data.profile && 
+               data.skills && 
+               data.projects && 
+               data.contact &&
+               Array.isArray(data.skills) &&
+               Array.isArray(data.projects);
+    }
+
+    // ...existing code...
 }
 
 // Initialize admin panel when DOM is loaded
