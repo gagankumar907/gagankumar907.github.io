@@ -708,3 +708,41 @@ section {
     opacity: 1;
     transform: translateX(0);
 }
+
+/* Custom Cursor Optimization */
+.custom-cursor {
+    will-change: transform;
+    backface-visibility: hidden;
+    perspective: 1000px;
+    transform-style: preserve-3d;
+}
+
+/* Hide default cursor only when custom cursor is active */
+body:not(.default-cursor) * {
+    cursor: none !important;
+}
+
+/* Show default cursor when custom cursor is disabled */
+body.default-cursor * {
+    cursor: auto !important;
+}
+
+body.default-cursor a,
+body.default-cursor button,
+body.default-cursor .project-card,
+body.default-cursor .skill-item,
+body.default-cursor [data-cursor="pointer"] {
+    cursor: pointer !important;
+}
+
+/* Performance optimizations */
+body.loaded {
+    will-change: auto;
+}
+
+/* Smooth hardware acceleration */
+.custom-cursor,
+.project-card,
+.skill-item {
+    transform: translateZ(0);
+}

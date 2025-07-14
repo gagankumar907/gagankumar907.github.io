@@ -7,7 +7,16 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Initialize portfolio data manager and load data immediately
     portfolioDataManager = new PortfolioDataManager();
-    portfolioDataManager.loadFromLocalStorage();
+    
+    // Try to load from API first, then fallback to localStorage
+    portfolioDataManager.loadData().then(success => {
+        if (!success) {
+            console.log('Using fallback data loading');
+        }
+    }).catch(error => {
+        console.error('Error in data loading:', error);
+        portfolioDataManager.loadFromLocalStorage();
+    });
     
     // Make portfolioDataManager globally available
     window.portfolioDataManager = portfolioDataManager;
@@ -19,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
 class PortfolioDataManager {
     constructor() {
         this.data = null;
-        this.apiBase = window.location.hostname === 'localhost' ? 'http://localhost/api.php' : './api.php';
+        this.apiBase = window.location.hostname === 'localhost' ? 'http://localhost:8000/api.php' : './api.php';
     }
 
     async loadData() {
@@ -28,13 +37,14 @@ class PortfolioDataManager {
             if (response.ok) {
                 this.data = await response.json();
                 this.updateUI();
+                return true;
             } else {
                 // Fallback to localStorage if API fails
-                this.loadFromLocalStorage();
+                return this.loadFromLocalStorage();
             }
         } catch (error) {
-            console.error('Error loading data:', error);
-            this.loadFromLocalStorage();
+            console.error('Error loading data from API:', error);
+            return this.loadFromLocalStorage();
         }
     }
 
@@ -44,9 +54,11 @@ class PortfolioDataManager {
             this.data = JSON.parse(savedData);
             console.log('Loading data from localStorage:', this.data);
             this.updateUI();
+            return true;
         } else {
             console.log('No saved data found, loading default data');
             this.loadDefaultData();
+            return false;
         }
     }
 
@@ -354,7 +366,16 @@ function initializeAdvancedComponents() {
     setupAdvancedAnimations();
     setupAdvancedInteractions();
     setupAdvancedParticles();
-    setupAdvancedCursor();
+    
+    // Only setup custom cursor if user hasn't disabled it
+    if (!localStorage.getItem('disableCustomCursor')) {
+        setupAdvancedCursor();
+    } else {
+        // Enable default cursor
+        document.documentElement.style.cursor = 'auto';
+        document.body.style.cursor = 'auto';
+    }
+    
     setupContactForm();
     setupProjectFiltering();
     setupAdminButtons(); // Add admin button setup
@@ -709,36 +730,94 @@ function setupAdvancedParticles() {
     updateParticles();
 }
 
+// Function to toggle custom cursor
+function toggleCustomCursor() {
+    const isDisabled = localStorage.getItem('disableCustomCursor');
+    
+    if (isDisabled) {
+        // Enable custom cursor
+        localStorage.removeItem('disableCustomCursor');
+        document.body.classList.remove('default-cursor');
+        
+        // Remove existing cursor if any
+        const existingCursor = document.querySelector('.custom-cursor');
+        if (existingCursor) {
+            existingCursor.remove();
+        }
+        
+        setupAdvancedCursor();
+        showNotification('Custom cursor enabled', 'success');
+    } else {
+        // Disable custom cursor
+        localStorage.setItem('disableCustomCursor', 'true');
+        document.body.classList.add('default-cursor');
+        
+        // Remove custom cursor
+        const customCursor = document.querySelector('.custom-cursor');
+        if (customCursor) {
+            customCursor.remove();
+        }
+        
+        showNotification('Custom cursor disabled', 'success');
+    }
+}
+
+// Make function globally available
+window.toggleCustomCursor = toggleCustomCursor;
+
 // Advanced Custom Cursor
 function setupAdvancedCursor() {
+    // Check if user prefers reduced motion
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.body.classList.add('default-cursor');
+        return; // Skip cursor setup for users who prefer reduced motion
+    }
+    
     const cursor = document.createElement('div');
-    cursor.className = 'custom-cursor fixed w-4 h-4 bg-primary rounded-full pointer-events-none z-50 mix-blend-difference transition-all duration-150';
+    cursor.className = 'custom-cursor fixed w-4 h-4 bg-primary rounded-full pointer-events-none z-50 mix-blend-difference';
     cursor.style.boxShadow = '0 0 20px rgba(0, 212, 255, 0.8)';
+    cursor.style.willChange = 'transform';
+    cursor.style.backfaceVisibility = 'hidden';
+    cursor.style.transition = 'opacity 0.2s ease';
     document.body.appendChild(cursor);
     
-    const trail = [];
-    const trailLength = 10;
+    // Remove default-cursor class when custom cursor is active
+    document.body.classList.remove('default-cursor');
     
+    let mouseX = 0;
+    let mouseY = 0;
+    
+    // Direct mouse tracking for immediate response
     document.addEventListener('mousemove', (e) => {
-        cursor.style.left = e.clientX - 8 + 'px';
-        cursor.style.top = e.clientY - 8 + 'px';
+        mouseX = e.clientX;
+        mouseY = e.clientY;
         
-        // Add to trail
-        trail.push({ x: e.clientX, y: e.clientY, time: Date.now() });
-        if (trail.length > trailLength) {
-            trail.shift();
-        }
+        // Direct update for instant response
+        cursor.style.transform = `translate3d(${mouseX - 8}px, ${mouseY - 8}px, 0)`;
+    }, { passive: true });
+    
+    // Enhanced cursor interactions with debouncing
+    let hoverTimeout;
+    document.addEventListener('mouseover', (e) => {
+        clearTimeout(hoverTimeout);
+        hoverTimeout = setTimeout(() => {
+            if (e.target.matches('a, button, .project-card, .skill-item, [data-cursor="pointer"]')) {
+                cursor.style.transform = `translate3d(${mouseX - 8}px, ${mouseY - 8}px, 0) scale(2)`;
+                cursor.style.backgroundColor = 'rgba(0, 212, 255, 0.5)';
+            } else {
+                cursor.style.transform = `translate3d(${mouseX - 8}px, ${mouseY - 8}px, 0) scale(1)`;
+                cursor.style.backgroundColor = '#00d4ff';
+            }
+        }, 10);
     });
     
-    // Enhanced cursor interactions
-    document.addEventListener('mouseover', (e) => {
-        if (e.target.matches('a, button, .project-card, .skill-item, [data-cursor="pointer"]')) {
-            cursor.style.transform = 'scale(2)';
-            cursor.style.backgroundColor = 'rgba(0, 212, 255, 0.5)';
-        } else {
-            cursor.style.transform = 'scale(1)';
-            cursor.style.backgroundColor = '#00d4ff';
-        }
+    // Hide cursor when leaving window
+    document.addEventListener('mouseleave', () => {
+        cursor.style.opacity = '0';
+    });
+    
+    document.addEventListener('mouseenter', () => {
+        cursor.style.opacity = '1';
     });
 }
 
@@ -943,6 +1022,12 @@ console.log(`
 ║         Welcome to my portfolio!     ║
 ║                                      ║
 ║    Built with 💙 by Gagan Kumar      ║
+║                                      ║
+║    💡 Dev Tips:                      ║
+║    • toggleCustomCursor() - Toggle   ║
+║      custom cursor on/off            ║
+║    • debugPortfolioData() - Debug    ║
+║      portfolio data                  ║
 ║                                      ║
 ╚══════════════════════════════════════╝
 `, 'color: #00d4ff; font-family: monospace; font-size: 12px;');

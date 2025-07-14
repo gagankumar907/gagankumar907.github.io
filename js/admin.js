@@ -3,17 +3,18 @@ class AdminPanel {
     constructor() {
         this.isLoggedIn = false;
         this.currentTab = 'profile';
-        this.data = this.loadData();
+        this.data = {};
+        this.apiBase = window.location.hostname === 'localhost' ? 'http://localhost:8000/api.php' : './api.php';
         this.init();
     }
 
     init() {
         this.checkAuth();
         this.setupEventListeners();
-        this.loadDashboardData();
+        this.loadDataFromAPI();
     }
 
-    checkAuth() {
+    async checkAuth() {
         const isAuthenticated = sessionStorage.getItem('adminAuthenticated') === 'true';
         const rememberMe = localStorage.getItem('adminRememberMe');
         
@@ -48,7 +49,7 @@ class AdminPanel {
         // Profile form
         document.getElementById('profile-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            this.updateProfile();
+            this.updateProfileAPI();
         });
 
         // Profile image upload
@@ -63,7 +64,7 @@ class AdminPanel {
 
         document.getElementById('skill-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            this.saveSkill();
+            this.saveSkillAPI();
         });
 
         document.getElementById('cancel-skill').addEventListener('click', () => {
@@ -82,7 +83,7 @@ class AdminPanel {
 
         document.getElementById('project-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            this.saveProject();
+            this.saveProjectAPI();
         });
 
         document.getElementById('cancel-project').addEventListener('click', () => {
@@ -97,22 +98,36 @@ class AdminPanel {
         // Contact form
         document.getElementById('contact-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            this.updateContact();
+            this.updateContactAPI();
         });
     }
 
-    handleLogin() {
+    async handleLogin() {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
 
-        // Simple authentication (in a real app, use proper authentication)
-        if (username === 'admin' && password === 'gagan123') {
-            this.isLoggedIn = true;
-            sessionStorage.setItem('adminAuthenticated', 'true');
-            this.showAdminContent();
-            this.showNotification('Login successful!', 'success');
-        } else {
-            this.showNotification('Invalid credentials!', 'error');
+        try {
+            const response = await fetch(`${this.apiBase}/auth`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                this.isLoggedIn = true;
+                sessionStorage.setItem('adminAuthenticated', 'true');
+                this.showAdminContent();
+                this.showNotification('Login successful!', 'success');
+            } else {
+                this.showNotification('Invalid credentials!', 'error');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            this.showNotification('Login failed. Please try again.', 'error');
         }
     }
 
@@ -131,7 +146,86 @@ class AdminPanel {
     showAdminContent() {
         document.getElementById('login-modal').classList.add('hidden');
         document.getElementById('admin-content').classList.remove('hidden');
-        this.loadAllData();
+        this.loadDataFromAPI();
+    }
+
+    // API Methods
+    async loadDataFromAPI() {
+        try {
+            const response = await fetch(`${this.apiBase}/data`);
+            if (response.ok) {
+                this.data = await response.json();
+                this.loadAllData();
+                this.loadDashboardData();
+            } else {
+                this.showNotification('Failed to load data from server', 'error');
+            }
+        } catch (error) {
+            console.error('Error loading data:', error);
+            this.showNotification('Error connecting to server', 'error');
+        }
+    }
+
+    async updateProfileAPI() {
+        const profileData = {
+            name: document.getElementById('profile-name').value,
+            title: document.getElementById('profile-title').value,
+            description: document.getElementById('profile-description').value
+        };
+
+        try {
+            const response = await fetch(`${this.apiBase}/profile`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(profileData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                this.data.profile = { ...this.data.profile, ...profileData };
+                this.showNotification('Profile updated successfully!', 'success');
+            } else {
+                this.showNotification('Failed to update profile', 'error');
+            }
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            this.showNotification('Error updating profile', 'error');
+        }
+    }
+
+    async updateContactAPI() {
+        const contactData = {
+            email: document.getElementById('contact-email').value,
+            phone: document.getElementById('contact-phone').value,
+            location: document.getElementById('contact-location').value,
+            linkedin: document.getElementById('contact-linkedin').value,
+            github: document.getElementById('contact-github').value
+        };
+
+        try {
+            const response = await fetch(`${this.apiBase}/contact`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(contactData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                this.data.contact = { ...this.data.contact, ...contactData };
+                this.showNotification('Contact information updated successfully!', 'success');
+            } else {
+                this.showNotification('Failed to update contact information', 'error');
+            }
+        } catch (error) {
+            console.error('Error updating contact:', error);
+            this.showNotification('Error updating contact information', 'error');
+        }
     }
 
     switchTab(tabName) {
@@ -159,85 +253,24 @@ class AdminPanel {
         // Load tab-specific data
         switch(tabName) {
             case 'skills':
-                this.loadSkills();
+                this.loadSkillsFromAPI();
                 break;
             case 'projects':
-                this.loadProjects();
+                this.loadProjectsFromAPI();
                 break;
             case 'messages':
-                this.loadMessages();
+                this.loadMessagesFromAPI();
                 break;
         }
     }
 
-    loadData() {
-        const defaultData = {
-            profile: {
-                name: 'Gagan Kumar',
-                title: 'Python | Full Stack Developer',
-                description: 'Crafting digital experiences with cutting-edge technologies. Specialized in building scalable web applications that push the boundaries of innovation.',
-                image: 'img/IMG_20250629_175830.png'
-            },
-            skills: [
-                { id: 1, name: 'Python', icon: 'fab fa-python', color: 'yellow-500', level: 90 },
-                { id: 2, name: 'JavaScript', icon: 'fab fa-js', color: 'yellow-500', level: 85 },
-                { id: 3, name: 'React', icon: 'fab fa-react', color: 'blue-500', level: 80 },
-                { id: 4, name: 'Node.js', icon: 'fab fa-node-js', color: 'green-500', level: 75 },
-                { id: 5, name: 'Django', icon: 'fab fa-python', color: 'green-500', level: 85 },
-                { id: 6, name: 'MongoDB', icon: 'fas fa-database', color: 'green-500', level: 70 }
-            ],
-            projects: [
-                {
-                    id: 1,
-                    name: 'Telegram Remote Desktop',
-                    category: 'desktop',
-                    description: 'A Python-based remote desktop application that allows users to control their computer remotely through Telegram bot commands.',
-                    technologies: ['Python', 'Telegram Bot API', 'PyAutoGUI', 'PIL'],
-                    liveUrl: '',
-                    githubUrl: 'https://github.com/gaganrai-github/telegram-remote-desktop',
-                    image: ''
-                },
-                {
-                    id: 2,
-                    name: 'Desktop Voice Assistant',
-                    category: 'desktop',
-                    description: 'An AI-powered desktop voice assistant built with Python that can perform various tasks like web browsing, system control, and answering questions.',
-                    technologies: ['Python', 'Speech Recognition', 'pyttsx3', 'OpenAI API'],
-                    liveUrl: '',
-                    githubUrl: 'https://github.com/gaganrai-github/voice-assistant',
-                    image: ''
-                }
-            ],
-            contact: {
-                email: 'gagan@example.com',
-                phone: '+91 9876543210',
-                location: 'India',
-                linkedin: 'https://linkedin.com/in/gagan-kumar',
-                github: 'https://github.com/gagan-kumar'
-            },
-            messages: [],
-            stats: {
-                profileViews: 1250,
-                totalProjects: 2,
-                totalSkills: 6,
-                totalMessages: 0
-            }
-        };
-
-        const savedData = localStorage.getItem('portfolioData');
-        return savedData ? JSON.parse(savedData) : defaultData;
-    }
-
-    saveData() {
-        localStorage.setItem('portfolioData', JSON.stringify(this.data));
-        this.updatePortfolioData();
-    }
-
     loadDashboardData() {
-        document.getElementById('total-projects').textContent = this.data.projects.length;
-        document.getElementById('total-skills').textContent = this.data.skills.length;
-        document.getElementById('total-messages').textContent = this.data.messages.length;
-        document.getElementById('profile-views').textContent = this.data.stats.profileViews;
+        if (this.data.projects && this.data.skills && this.data.messages && this.data.stats) {
+            document.getElementById('total-projects').textContent = this.data.projects.length;
+            document.getElementById('total-skills').textContent = this.data.skills.length;
+            document.getElementById('total-messages').textContent = this.data.messages.length;
+            document.getElementById('profile-views').textContent = this.data.stats.profileViews || 0;
+        }
     }
 
     loadAllData() {
@@ -247,37 +280,21 @@ class AdminPanel {
     }
 
     loadProfile() {
-        document.getElementById('profile-name').value = this.data.profile.name;
-        document.getElementById('profile-title').value = this.data.profile.title;
-        document.getElementById('profile-description').value = this.data.profile.description;
+        if (this.data.profile) {
+            document.getElementById('profile-name').value = this.data.profile.name || '';
+            document.getElementById('profile-title').value = this.data.profile.title || '';
+            document.getElementById('profile-description').value = this.data.profile.description || '';
+        }
     }
 
     loadContact() {
-        document.getElementById('contact-email').value = this.data.contact.email;
-        document.getElementById('contact-phone').value = this.data.contact.phone;
-        document.getElementById('contact-location').value = this.data.contact.location;
-        document.getElementById('contact-linkedin').value = this.data.contact.linkedin;
-        document.getElementById('contact-github').value = this.data.contact.github;
-    }
-
-    updateProfile() {
-        this.data.profile.name = document.getElementById('profile-name').value;
-        this.data.profile.title = document.getElementById('profile-title').value;
-        this.data.profile.description = document.getElementById('profile-description').value;
-        
-        this.saveData();
-        this.showNotification('Profile updated successfully!', 'success');
-    }
-
-    updateContact() {
-        this.data.contact.email = document.getElementById('contact-email').value;
-        this.data.contact.phone = document.getElementById('contact-phone').value;
-        this.data.contact.location = document.getElementById('contact-location').value;
-        this.data.contact.linkedin = document.getElementById('contact-linkedin').value;
-        this.data.contact.github = document.getElementById('contact-github').value;
-        
-        this.saveData();
-        this.showNotification('Contact information updated successfully!', 'success');
+        if (this.data.contact) {
+            document.getElementById('contact-email').value = this.data.contact.email || '';
+            document.getElementById('contact-phone').value = this.data.contact.phone || '';
+            document.getElementById('contact-location').value = this.data.contact.location || '';
+            document.getElementById('contact-linkedin').value = this.data.contact.linkedin || '';
+            document.getElementById('contact-github').value = this.data.contact.github || '';
+        }
     }
 
     handleImageUpload(event) {
@@ -311,9 +328,28 @@ class AdminPanel {
         }
     }
 
-    loadSkills() {
+    async loadSkillsFromAPI() {
+        try {
+            const response = await fetch(`${this.apiBase}/skills`);
+            if (response.ok) {
+                this.data.skills = await response.json();
+                this.renderSkills();
+            }
+        } catch (error) {
+            console.error('Error loading skills:', error);
+        }
+    }
+
+    renderSkills() {
         const skillsList = document.getElementById('skills-list');
+        if (!skillsList) return;
+        
         skillsList.innerHTML = '';
+
+        if (!this.data.skills || this.data.skills.length === 0) {
+            skillsList.innerHTML = '<div class="text-center text-gray-400 py-8">No skills added yet.</div>';
+            return;
+        }
 
         this.data.skills.forEach(skill => {
             const skillElement = document.createElement('div');
@@ -331,7 +367,7 @@ class AdminPanel {
                         <button onclick="adminPanel.editSkill(${skill.id})" class="bg-yellow-600 text-white px-3 py-1 rounded hover:opacity-90 transition-opacity duration-300">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button onclick="adminPanel.deleteSkill(${skill.id})" class="bg-red-600 text-white px-3 py-1 rounded hover:opacity-90 transition-opacity duration-300">
+                        <button onclick="adminPanel.deleteSkillAPI(${skill.id})" class="bg-red-600 text-white px-3 py-1 rounded hover:opacity-90 transition-opacity duration-300">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -367,11 +403,15 @@ class AdminPanel {
         }
     }
 
+    editSkill(skillId) {
+        this.showSkillModal(skillId);
+    }
+
     hideSkillModal() {
         document.getElementById('skill-modal').classList.add('hidden');
     }
 
-    saveSkill() {
+    async saveSkillAPI() {
         const form = document.getElementById('skill-form');
         const skillId = form.dataset.skillId;
         const skillData = {
@@ -381,45 +421,89 @@ class AdminPanel {
             level: parseInt(document.getElementById('skill-level').value)
         };
 
-        if (skillId) {
-            // Edit existing skill
-            const skillIndex = this.data.skills.findIndex(s => s.id === parseInt(skillId));
-            if (skillIndex !== -1) {
-                this.data.skills[skillIndex] = { ...this.data.skills[skillIndex], ...skillData };
+        try {
+            let response;
+            if (skillId) {
+                // Update existing skill
+                response = await fetch(`${this.apiBase}/skills/${skillId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(skillData)
+                });
+            } else {
+                // Add new skill
+                response = await fetch(`${this.apiBase}/skills`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(skillData)
+                });
             }
-        } else {
-            // Add new skill
-            const newSkill = {
-                id: Date.now(),
-                ...skillData
-            };
-            this.data.skills.push(newSkill);
+
+            const result = await response.json();
+
+            if (result.success) {
+                this.loadSkillsFromAPI();
+                this.loadDashboardData();
+                this.hideSkillModal();
+                this.showNotification('Skill saved successfully!', 'success');
+            } else {
+                this.showNotification('Failed to save skill', 'error');
+            }
+        } catch (error) {
+            console.error('Error saving skill:', error);
+            this.showNotification('Error saving skill', 'error');
         }
-
-        this.saveData();
-        this.loadSkills();
-        this.loadDashboardData();
-        this.hideSkillModal();
-        this.showNotification('Skill saved successfully!', 'success');
     }
 
-    editSkill(skillId) {
-        this.showSkillModal(skillId);
-    }
-
-    deleteSkill(skillId) {
+    async deleteSkillAPI(skillId) {
         if (confirm('Are you sure you want to delete this skill?')) {
-            this.data.skills = this.data.skills.filter(s => s.id !== skillId);
-            this.saveData();
-            this.loadSkills();
-            this.loadDashboardData();
-            this.showNotification('Skill deleted successfully!', 'success');
+            try {
+                const response = await fetch(`${this.apiBase}/skills/${skillId}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    this.loadSkillsFromAPI();
+                    this.loadDashboardData();
+                    this.showNotification('Skill deleted successfully!', 'success');
+                } else {
+                    this.showNotification('Failed to delete skill', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting skill:', error);
+                this.showNotification('Error deleting skill', 'error');
+            }
         }
     }
 
-    loadProjects() {
+    async loadProjectsFromAPI() {
+        try {
+            const response = await fetch(`${this.apiBase}/projects`);
+            if (response.ok) {
+                this.data.projects = await response.json();
+                this.renderProjects();
+            }
+        } catch (error) {
+            console.error('Error loading projects:', error);
+        }
+    }
+
+    renderProjects() {
         const projectsList = document.getElementById('projects-list');
+        if (!projectsList) return;
+        
         projectsList.innerHTML = '';
+
+        if (!this.data.projects || this.data.projects.length === 0) {
+            projectsList.innerHTML = '<div class="text-center text-gray-400 py-8">No projects added yet.</div>';
+            return;
+        }
 
         this.data.projects.forEach(project => {
             const projectElement = document.createElement('div');
@@ -447,7 +531,7 @@ class AdminPanel {
                         <button onclick="adminPanel.editProject(${project.id})" class="bg-yellow-600 text-white px-3 py-1 rounded hover:opacity-90 transition-opacity duration-300">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button onclick="adminPanel.deleteProject(${project.id})" class="bg-red-600 text-white px-3 py-1 rounded hover:opacity-90 transition-opacity duration-300">
+                        <button onclick="adminPanel.deleteProjectAPI(${project.id})" class="bg-red-600 text-white px-3 py-1 rounded hover:opacity-90 transition-opacity duration-300">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -496,7 +580,7 @@ class AdminPanel {
         document.getElementById('project-image-preview').classList.add('hidden');
     }
 
-    saveProject() {
+    async saveProjectAPI() {
         const form = document.getElementById('project-form');
         const projectId = form.dataset.projectId;
         const imageInput = document.getElementById('project-image');
@@ -509,7 +593,7 @@ class AdminPanel {
             
             reader.onload = (e) => {
                 imageUrl = e.target.result; // Base64 data URL
-                this.saveProjectData(projectId, imageUrl);
+                this.saveProjectDataAPI(projectId, imageUrl);
             };
             
             reader.readAsDataURL(file);
@@ -519,11 +603,11 @@ class AdminPanel {
                 const existingProject = this.data.projects.find(p => p.id === parseInt(projectId));
                 imageUrl = existingProject ? existingProject.image : '';
             }
-            this.saveProjectData(projectId, imageUrl);
+            this.saveProjectDataAPI(projectId, imageUrl);
         }
     }
     
-    saveProjectData(projectId, imageUrl) {
+    async saveProjectDataAPI(projectId, imageUrl) {
         const projectData = {
             name: document.getElementById('project-name').value,
             category: document.getElementById('project-category').value,
@@ -534,47 +618,90 @@ class AdminPanel {
             image: imageUrl
         };
 
-        if (projectId) {
-            // Edit existing project
-            const projectIndex = this.data.projects.findIndex(p => p.id === parseInt(projectId));
-            if (projectIndex !== -1) {
-                this.data.projects[projectIndex] = { ...this.data.projects[projectIndex], ...projectData };
+        try {
+            let response;
+            if (projectId) {
+                // Update existing project
+                response = await fetch(`${this.apiBase}/projects/${projectId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(projectData)
+                });
+            } else {
+                // Add new project
+                response = await fetch(`${this.apiBase}/projects`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(projectData)
+                });
             }
-        } else {
-            // Add new project
-            const newProject = {
-                id: Date.now(),
-                ...projectData
-            };
-            this.data.projects.push(newProject);
-        }
 
-        this.saveData();
-        this.loadProjects();
-        this.loadDashboardData();
-        this.hideProjectModal();
-        this.showNotification('Project saved successfully!', 'success');
+            const result = await response.json();
+
+            if (result.success) {
+                this.loadProjectsFromAPI();
+                this.loadDashboardData();
+                this.hideProjectModal();
+                this.showNotification('Project saved successfully!', 'success');
+            } else {
+                this.showNotification('Failed to save project', 'error');
+            }
+        } catch (error) {
+            console.error('Error saving project:', error);
+            this.showNotification('Error saving project', 'error');
+        }
+    }
+
+    async deleteProjectAPI(projectId) {
+        if (confirm('Are you sure you want to delete this project?')) {
+            try {
+                const response = await fetch(`${this.apiBase}/projects/${projectId}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    this.loadProjectsFromAPI();
+                    this.loadDashboardData();
+                    this.showNotification('Project deleted successfully!', 'success');
+                } else {
+                    this.showNotification('Failed to delete project', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting project:', error);
+                this.showNotification('Error deleting project', 'error');
+            }
+        }
     }
 
     editProject(projectId) {
         this.showProjectModal(projectId);
     }
 
-    deleteProject(projectId) {
-        if (confirm('Are you sure you want to delete this project?')) {
-            this.data.projects = this.data.projects.filter(p => p.id !== projectId);
-            this.saveData();
-            this.loadProjects();
-            this.loadDashboardData();
-            this.showNotification('Project deleted successfully!', 'success');
+    async loadMessagesFromAPI() {
+        try {
+            const response = await fetch(`${this.apiBase}/messages`);
+            if (response.ok) {
+                this.data.messages = await response.json();
+                this.renderMessages();
+            }
+        } catch (error) {
+            console.error('Error loading messages:', error);
         }
     }
 
-    loadMessages() {
+    renderMessages() {
         const messagesList = document.getElementById('messages-list');
+        if (!messagesList) return;
+        
         messagesList.innerHTML = '';
 
-        if (this.data.messages.length === 0) {
+        if (!this.data.messages || this.data.messages.length === 0) {
             messagesList.innerHTML = '<div class="text-center text-gray-400 py-8">No messages yet.</div>';
             return;
         }
@@ -588,9 +715,9 @@ class AdminPanel {
                         <h4 class="font-semibold text-lg mb-2">${message.name}</h4>
                         <p class="text-gray-400 mb-2">${message.email}</p>
                         <p class="text-gray-300 mb-2">${message.message}</p>
-                        <span class="text-sm text-gray-500">${new Date(message.timestamp).toLocaleString()}</span>
+                        <span class="text-sm text-gray-500">${new Date(message.timestamp * 1000).toLocaleString()}</span>
                     </div>
-                    <button onclick="adminPanel.deleteMessage(${message.id})" class="bg-red-600 text-white px-3 py-1 rounded hover:opacity-90 transition-opacity duration-300">
+                    <button onclick="adminPanel.deleteMessageAPI(${message.id})" class="bg-red-600 text-white px-3 py-1 rounded hover:opacity-90 transition-opacity duration-300">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -599,20 +726,27 @@ class AdminPanel {
         });
     }
 
-    deleteMessage(messageId) {
+    async deleteMessageAPI(messageId) {
         if (confirm('Are you sure you want to delete this message?')) {
-            this.data.messages = this.data.messages.filter(m => m.id !== messageId);
-            this.saveData();
-            this.loadMessages();
-            this.loadDashboardData();
-            this.showNotification('Message deleted successfully!', 'success');
-        }
-    }
+            try {
+                const response = await fetch(`${this.apiBase}/messages/${messageId}`, {
+                    method: 'DELETE'
+                });
 
-    updatePortfolioData() {
-        // This function would update the main portfolio website
-        // In a real application, this would make an API call to update the database
-        console.log('Portfolio data updated:', this.data);
+                const result = await response.json();
+
+                if (result.success) {
+                    this.loadMessagesFromAPI();
+                    this.loadDashboardData();
+                    this.showNotification('Message deleted successfully!', 'success');
+                } else {
+                    this.showNotification('Failed to delete message', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting message:', error);
+                this.showNotification('Error deleting message', 'error');
+            }
+        }
     }
 
     showNotification(message, type = 'success') {
